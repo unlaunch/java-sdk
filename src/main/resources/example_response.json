@@ -1,0 +1,67 @@
+[
+    {
+        "id": 1,
+        "key": "new-gallery",
+        "name": "New Gallery",
+        "description": "feature flag 1",
+        "flagType": "BOOLEAN",
+        "state": "ACTIVE",
+        "offVariation": {
+            "key": "var-1",
+            "name": "control",
+            "description": "variation 1"
+        },
+        "rules": [
+            {
+                "splits": [
+                    {
+                        "id": 1,
+                        "variation": {
+                            "key": "var-1",
+                            "name": "control",
+                            "description": "variation 1"
+                        },
+                        "percentage": 100
+                    }
+                ],
+                "conditions": [
+                    {
+                        "value": "USA",
+                        "operator": "STARTS_WITH",
+                        "attribute": "country",
+                        "type": "STRING"
+                    }, 
+                    {
+                        "value": "60",
+                        "operator": "LESS_THAN",
+                        "attribute": "age",
+                        "type": "INTEGER"
+                    }
+                ],
+                "default": false
+            }, 
+            {
+                "splits": [
+                    {
+                        "id": 2,
+                        "variation": {
+                            "key": "var-1",
+                            "name": "control",
+                            "description": "variation 1"
+                        },
+                        "percentage": 100
+                    }
+                ],
+                "conditions": [
+                    {
+                        "value": "male",
+                        "operator": "EQUALS",
+                        "attribute": "gender",
+                        "type": "STRING"
+                    }
+                ],
+                "default": true
+            }
+        ]
+    }
+]

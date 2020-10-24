@@ -1,0 +1,7 @@
+- featureA:
+    variation: "on"
+    config:
+        "country": "usa"
+        "is_paid": "true"
+- featureB:
+    variation: "off"

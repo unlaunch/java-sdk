@@ -1,0 +1,8 @@
+# Properties.yml template - Only for internal or advanced users
+
+host: "https://api.unlaunch.io"
+#orca-hosts: "http://localhost:8080/"
+flagsApiRoot: "/api/v1/flags"
+eventsApiRoot: "/api/v1/events"
+flagSyncIntervalSeconds: "60"
+eventSyncIntervalSeconds: "60"
