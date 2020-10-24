@@ -29,9 +29,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:unlaunch/java-sdkt.git</connection>
-        <developerConnection>scm:git@github.com:unlaunch/java-sdkt.git</developerConnection>
-        <url>git@github.com:unlaunch/java-sdkt.git</url>
+        <connection>scm:git:git@github.com:unlaunch/java-sdk.git</connection>
+        <developerConnection>scm:git@github.com:unlaunch/java-sdk.git</developerConnection>
+        <url>git@github.com:unlaunch/java-sdk.git</url>
     </scm>
 
     <properties>
