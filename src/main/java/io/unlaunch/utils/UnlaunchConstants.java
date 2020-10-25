@@ -15,7 +15,7 @@ public class UnlaunchConstants {
 
     public static final String EVENT_TYPE_FOR_IMPRESSION_EVENTS = "IMPRESSION";
 
-    public static final String FLAG_DEFAULT_RETURN_TYPE = "control__this-is-sdk-default-See-evaluation-reason";
+    public static final String FLAG_DEFAULT_RETURN_TYPE = "control";
 
     public static final UnlaunchFeature getControlFeatureByName(String flagKey) {
         return UnlaunchFeature.create(flagKey, "", null,
