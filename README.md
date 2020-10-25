@@ -19,7 +19,9 @@ import io.unlaunch.UnlaunchClient;
 public class ExampleApp { 
    public static void main(String[] args) {
        UnlaunchClient client = UnlaunchClient.create("INSERT_YOUR_SDK_KEY");
+
        String variation = client.getVariation("flagKey", "userId123");
+
        if (variation.equals("on")) {
            System.out.println("Variation is on");
        } else if (variation.equals("off")) {
@@ -31,11 +33,12 @@ public class ExampleApp {
        // If you want to pass attributes which are used in the targeting rules
        String variation = client.getVariation("flagKey", "userId123");
 
-      // If you attached (key-value) configuration to your feature flag variations, here's how you can retrieve it:
+      // If you attached (key-value) configuration to your feature flag variations, 
+      // here's how you can retrieve it:
        Feature f = client.getFeature("flagKey", "userId123");
        f.getVariationConfig().getString("buttonColor");
 
-        client.shutdown();
+       client.shutdown();
    }
 }
 ```
@@ -84,7 +87,7 @@ UnlaunchClient.builder().
 Please see [CONTRIBUTING](CONTRIBUTING.md) to find how you can contribute.
 
 ## License
-Licensed under the Apache License, Version 2.0. See: [Apache License](http://www.apache.org/licenses/).
+Licensed under the Apache License, Version 2.0. See: [Apache License](LICENSE.md).
 
 ## About Unlaunch
 Unlaunch is a Feature Release Platform for engineering teams. Our mission is allow engineering teams of all
