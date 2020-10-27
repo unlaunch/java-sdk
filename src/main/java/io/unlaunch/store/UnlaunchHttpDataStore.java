@@ -56,8 +56,8 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public void run() {
         numHttpCalls.incrementAndGet();
         boolean fetchedSuccessfully = false;
-
         String restApiResponse = null;
+
         try {
             restApiResponse = restWrapper.get(String.class);
 
@@ -87,11 +87,11 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                 logger.debug("cached {} feature flag", flagsMap.size());
             }
         } catch ( UnlaunchHttpException ex) {
-            logger.warn("unable to fetch feature flags using REST API " + ex.getMessage());
+            logger.warn("unable to fetch flags using REST API " + ex.getMessage());
         } catch (ParseException pex) {
-            logger.warn("unable to parse feature flags using REST API response {}", restApiResponse);
+            logger.warn("unable to parse flags response that the API returned: {}. Error {}", restApiResponse);
         } catch (Exception e) {
-            logger.warn("unable to fetch feature flags using REST API " + e.getMessage());
+            logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
         }
 
         if (fetchedSuccessfully) {

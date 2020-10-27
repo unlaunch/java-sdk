@@ -30,7 +30,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private TimeUnit pollingIntervalTimeUnit = TimeUnit.SECONDS;
     private long eventFlushInterval = 60;
     private TimeUnit eventFlushIntervalTimeUnit = TimeUnit.SECONDS;
-    private String host = "http://api.unlaunch.io";
+    private long impressionsForLiveTailIntervalInSeconds = 5;
+    private String host = "http://api.unlaunch.io"; // TODO Change to https;
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
@@ -172,7 +173,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
         EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler("impression",
-                impressionApiRestClient, 1);
+                impressionApiRestClient, impressionsForLiveTailIntervalInSeconds, 100);
 
         EventHandler flagInvocationMetricHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, 30,
                 TimeUnit.SECONDS);
