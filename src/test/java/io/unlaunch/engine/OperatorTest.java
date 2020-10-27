@@ -47,6 +47,30 @@ public class OperatorTest {
     }
     
     @Test
+    public void testEqualsInNumberAttribute(){
+    
+        Number userValue = 10.5;
+        List<String> numberList = Arrays.asList("10.5", "100.30", "82", "10");
+        
+        boolean result = Operator.EQUALS.apply(numberList, new UnlaunchNumberValue(userValue), AttributeType.NUMBER);
+        
+        Assert.assertEquals("Result EQ: true", true ,result);
+       
+    }
+
+    @Test
+    public void testNotEqualsInNumberAttribute(){
+    
+        Number userValue = 10.5;
+        List<String> numberList = Arrays.asList("10.7", "100", "82.35", "17");
+        
+        boolean result = Operator.NOT_EQUALS.apply(numberList, new UnlaunchNumberValue(userValue), AttributeType.NUMBER);
+        
+        Assert.assertEquals("Result NEQ: true", true ,result);
+        
+    }
+    
+    @Test
     public void testGreaterThan(){
     
         int age = 18;
