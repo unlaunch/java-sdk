@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class UnlaunchHttpDataStoreTest {
 
     @Test
-    public void testLatchAndSuccessThereIsAnHttpError() {
+    public void testLatchIsClosedWhenThereIsAnHttpError() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
         when(unlaunchRestWrapper.get(any())).thenThrow(new UnlaunchHttpException());
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);

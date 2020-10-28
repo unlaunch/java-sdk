@@ -153,9 +153,9 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
         final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
-         final AtomicBoolean isDownloadSuccess = new AtomicBoolean(false);
+         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
         RefreshableDataStoreProvider refreshableDataStoreProvider =
-                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, isDownloadSuccess,
+                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, downloadSuccessful,
                         pollingIntervalInSeconds);
 
         // Try to make sure there are no errors or abandon object construction
@@ -180,7 +180,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         return  DefaultUnlaunchClient.create(
                 dataStore, eventHandler, flagInvocationMetricHandler, impressionsEventHandler,
-                initialDownloadDoneLatch, isDownloadSuccess,
+                initialDownloadDoneLatch, downloadSuccessful,
                 isOffline, () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();

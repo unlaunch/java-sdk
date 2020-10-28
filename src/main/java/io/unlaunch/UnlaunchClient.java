@@ -182,7 +182,7 @@ public interface UnlaunchClient extends Cloneable {
      * once. </p>
      * @return
      */
-    boolean isInitialized();
+    boolean isReady();
 
     /**
      * Closes the client by cleaning up all resources such as in memory caches, etc., stops running tasks and

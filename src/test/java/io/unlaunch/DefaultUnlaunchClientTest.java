@@ -196,7 +196,7 @@ public class DefaultUnlaunchClientTest {
         latchThatCloses.countDown();
         downloadSuccess.set(true);
 
-        Assert.assertTrue(client.isInitialized());
+        Assert.assertTrue(client.isReady());
     }
 
     @Test
@@ -209,8 +209,7 @@ public class DefaultUnlaunchClientTest {
                 Boolean.TRUE::booleanValue);
 
         latchThatCloses.countDown();
-
-        Assert.assertFalse(client.isInitialized());
+        Assert.assertFalse(client.isReady());
     }
 
 }

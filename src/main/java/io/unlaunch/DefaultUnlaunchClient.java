@@ -33,7 +33,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     private final BooleanSupplier runCodeOnShutdown;
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean(false);
     private final CountDownLatch initialDownloadDoneLatch;
-    private final AtomicBoolean isDownloadSuccessful;
+    private final AtomicBoolean downloadSuccessful;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClient.class);
 
@@ -43,14 +43,14 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             EventHandler flagInvocationMetricHandler,
             EventHandler impressionsEventHandler,
             CountDownLatch initialDownloadDoneLatch,
-            AtomicBoolean isDownloadSuccessful,
+            AtomicBoolean downloadSuccessful,
             boolean isOffline,
             BooleanSupplier runCodeOnShutdown) {
         this.flagInvocationMetricHandler = flagInvocationMetricHandler;
         this.impressionsEventHandler = impressionsEventHandler;
         this.dataStore =  dataStore;
         this.initialDownloadDoneLatch = initialDownloadDoneLatch;
-        this.isDownloadSuccessful = isDownloadSuccessful;
+        this.downloadSuccessful = downloadSuccessful;
         this.runCodeOnShutdown = runCodeOnShutdown;
         if (!isOffline) {
             this.defaultEventHandler = eventHandler;
@@ -71,11 +71,11 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             EventHandler flagInvocationMetricHandler,
             EventHandler impressionsEventHandler,
             CountDownLatch initialDownloadDoneLatch,
-            AtomicBoolean isDownloadSuccessful,
+            AtomicBoolean downloadSuccessful,
             boolean isOffline,
             BooleanSupplier runCodeOnShutdown) {
         return new DefaultUnlaunchClient(dataStore, eventHandler, flagInvocationMetricHandler,
-                impressionsEventHandler, initialDownloadDoneLatch, isDownloadSuccessful, isOffline, runCodeOnShutdown);
+                impressionsEventHandler, initialDownloadDoneLatch, downloadSuccessful, isOffline, runCodeOnShutdown);
     }
 
     private UnlaunchFeature evaluate(String flagKey, String identity, UnlaunchAttribute ... attributes) {
@@ -146,19 +146,8 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     }
 
     @Override
-    public boolean isInitialized() {
-        try {
-            boolean closed = initialDownloadDoneLatch.await(5, TimeUnit.MILLISECONDS);
-
-            if (closed) {
-                return isDownloadSuccessful.get();
-            }
-
-        } catch (InterruptedException ie) {
-
-        }
-
-        return false;
+    public boolean isReady() {
+        return downloadSuccessful.get();
     }
 
     @Override
