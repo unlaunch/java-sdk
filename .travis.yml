@@ -2,6 +2,10 @@ sudo: required #required to use docker
 language: java
 jdk: openjdk8
 
+before_install:
+  - openssl aes-256-cbc -K $encrypted_28c7f3de2fe6_key -iv $encrypted_28c7f3de2fe6_iv -in all.gpg.enc -out ./all.gpg -d
+  - gpg --import all.gpg
+
 cache:
   directories:
     - .autoconf
@@ -22,7 +26,7 @@ deploy:
   script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy"
   skip_cleanup: true
   on:
-    branch: master
+    branch: main
 
 notifications:
-  slack: $SLACK_URL
+  slack: ${env.SLACK_URL_NOTIFICATIONS}
