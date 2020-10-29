@@ -14,18 +14,17 @@ services:
 - docker
 install:
 - cp .travis.settings.xml $HOME/.m2/settings.xml && mvn clean install
-script:
-- echo "no tests!"
-- ls -l
+
 deploy:
   provider: script
   script: mvn --settings .travis.settings.xml deploy -Dmaven.test.skip=true
-  .skip=true
   skip_cleanup: true
   on:
     branch: main
+    
 notifications:
   slack: ${env.SLACK_URL_NOTIFICATIONS}
+
 env:
   global:
   - secure: 0DSn+v70qO0sLKHl9irQA3bcme+fAK7DR6aFpaE4nbgm5eb0sTP9YoxFzg3DYO1oWdU3uO5wy1v5FmPVX3Y0PhqcRsPA9yoqLvvkiktKQIMtQ6fcJsvD7H3BdULEPygAzvOcvZXrza4GmmUT0IVvSzSpVSNkiPIqBZww2R10v9CeJ02NXQNj466uW4k/OZ0UK+3y3mZbQTAQuIviRCvzifXeQYWx1DNXK0PLpRpQs+sgwmcTss+qEbQqJGmN7FRq/RI4KSj6qbBFDE1DnHW+sZq5tCxLU9K80qUOF8EHSHsTySeM2m8FUSKeQOeXAznJtjP8fZSVk896iSr5xop2vYNEhQsCcPdW5E/MmkaUTPiMNdmA61gUF9rcvjA8VsACYR/81mIiaz5DoBbr49sPHu9TF9lOo9rZSGrV1HrI67xlV/3bP+/SGerX8HfgHiMy7gVFDuqIwdjekMzxInWwpcyf825iBAvX4Ol8lt5n7mYMDyCpKST+yu0ePcWX5uwESxYz47e1JNj0DitpLcBSV6XdNUz7+QNadRVX0YOooxOhRUKRmt3GWli/yMlh87yPPz1g/8ujcdaW7h5SIR6ijDUP95UsrdKeTLdPV8iYIeHJzFOA/q9zzEBevzL/3jHH54pGeG+op8sd+Hw+3m6Jl6I6R7q4DwM2i0SIrugN2kw=
