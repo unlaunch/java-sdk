@@ -43,7 +43,7 @@ public interface UnlaunchClient extends Cloneable {
 
     /**
      * Create a {@link UnlaunchClient} with the SDK key loaded from the <em>UNLAUNCH_SDK_KEY</em> environment variable.
-     * @return
+     * @return {@link UnlaunchClient}
      */
     static UnlaunchClient create() {
         return builder().build();
@@ -60,7 +60,7 @@ public interface UnlaunchClient extends Cloneable {
 
     /**
      * Create a builder that can be used to customize and create a {@link UnlaunchClient}.
-     *
+     * @return {@link UnlaunchClientBuilder}
      */
     static UnlaunchClientBuilder builder() {
         return new DefaultUnlaunchClientBuilder();
@@ -76,14 +76,12 @@ public interface UnlaunchClient extends Cloneable {
     /**
      *  Evaluates and returns the variation (variation key) for this feature. Variations are defined in the Unlaunch
      *  web console at <a href="https://app.unlaunch.io">https://app.unlaunch.io</a>.
-     *  <p></p>
      *  <p>This method returns "none" if:</p>
      *  <ol>
      *      <li> The flag was not found.</li>
      *      <li> There was an exception evaluation the feature flag.</li>
      *      <li> The flag was archived.</li>
      *  </ol>
-     * <p></p>
      * <p>This method doesn't throw any exceptions nor does it return <code>null</code> value</p>
      * @param flagKey the feature flag you want to evaluate.
      * @param identity unique id of your user or a unique identifier such as request or session id, email, etc. It
@@ -152,6 +150,7 @@ public interface UnlaunchClient extends Cloneable {
      * @param flagKey the feature flag you want to evaluate.
      * @param identity unique id of your user or a unique identifier such as request or session id, email, etc. It
      *    may be null but 'Percentage rollout' will not work because it is used to determine bucketing.
+     * @param attributes an array of attributes to evaluate against
      * @return {@link UnlaunchFeature} object that contains evaluated variation key, configuration and evaluation reason.
      */
     UnlaunchFeature getFeature(String flagKey, String identity, UnlaunchAttribute ... attributes);
@@ -160,13 +159,13 @@ public interface UnlaunchClient extends Cloneable {
      * Causes the current thread to wait until {@link UnlaunchClient} is initialized, unless the thread is interrupted,
      * or the specified waiting time elapses.
      *
-     * <p>If the current thread:
+     * <p>If the current thread:</p>
      *  <ul>
      *     <li>has its interrupted status set on entry to this method; or
      *     <li>is {@linkplain Thread#interrupt interrupted} while waiting,
      *  </ul>
      *
-     * then {@link InterruptedException} is thrown and the current thread's interrupted status is cleared. </p>
+     *<p> then {@link InterruptedException} is thrown and the current thread's interrupted status is cleared. </p>
      *
      * @param timeout the maximum time to wait
      * @param unit the time unit of the timeout argument

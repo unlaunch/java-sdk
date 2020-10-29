@@ -95,7 +95,7 @@ public class UnlaunchUser {
     /**
      * Returns a map of user attributes with values.
      *
-     * @return
+     * @return map of user attributes
      */
     public Map<String, UnlaunchValue> getAllAttributes() {
         return new HashMap<>(attributes);
@@ -109,8 +109,8 @@ public class UnlaunchUser {
      * Key should be non-null and non-empty string. key should match to the
      * attribute name used in the rule conditions.
      *
-     * @param key
-     * @param value
+     * @param key attribute key
+     * @param value attribute value
      */
     public void putAttribute(String key, Object value) {
         if (key == null || key.isEmpty()) {
@@ -185,7 +185,7 @@ public class UnlaunchUser {
     /**
      * Returns id of the UnlaunchUser
      *
-     * @return
+     * @return id of the user
      */
     public String getId() {
         return id;
