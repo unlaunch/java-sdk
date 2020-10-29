@@ -1,6 +1,6 @@
 package io.unlaunch.utils;
 
-public class UnlaunchData {
+public class UnlaunchTestHelper {
 
     public static final String flagsResponseFromServerWithOneFlag() {
         return  "{\n" +

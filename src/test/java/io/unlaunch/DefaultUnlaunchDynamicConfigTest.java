@@ -8,17 +8,17 @@ import java.util.HashMap;
 /**
  * @author umermansoor
  */
-public class DefaultUnlaunchConfigTest {
+public class DefaultUnlaunchDynamicConfigTest {
 
     @Test
     public void testDefaultValueWhenUnderlyingMapIsNull() {
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(null);
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(null);
         Assert.assertEquals("1", config.getString("doesnt_exist", "1"));
     }
 
     @Test
     public void testDefaultValueWhenKeyDoesntExist() {
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(new HashMap<>());
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(new HashMap<>());
         Assert.assertEquals("1", config.getString("doesnt_exist", "1"));
     }
 
@@ -27,7 +27,7 @@ public class DefaultUnlaunchConfigTest {
         HashMap<String, String> map = new HashMap<>();
         map.put("value_is_not_a_number", "abc");
 
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(map);
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(map);
         Assert.assertEquals(1, config.getInt("value_is_not_a_number", 1));
     }
 
@@ -36,7 +36,7 @@ public class DefaultUnlaunchConfigTest {
         HashMap<String, String> map = new HashMap<>();
         map.put("value_is_not_a_number", "abc");
 
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(map);
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(map);
         Assert.assertEquals(1.123f, config.getFloat("value_is_not_a_number", 1.123f), 0.0f);
     }
 
@@ -45,7 +45,7 @@ public class DefaultUnlaunchConfigTest {
         HashMap<String, String> map = new HashMap<>();
         map.put("value_is_not_a_number", "abc");
 
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(map);
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(map);
         Assert.assertEquals(1.123d, config.getDouble("value_is_not_a_number", 1.123d), 0.0d);
     }
 
@@ -53,7 +53,7 @@ public class DefaultUnlaunchConfigTest {
     public void testDefaultDoubleValueWhenKeyDoesntExist() {
         HashMap<String, String> map = new HashMap<>();
 
-        DefaultUnlaunchConfig config = new DefaultUnlaunchConfig(map);
+        DefaultUnlaunchDynamicConfig config = new DefaultUnlaunchDynamicConfig(map);
         Assert.assertEquals(1.123d, config.getDouble("value_is_not_a_number", 1.123d), 0.0d);
     }
 }

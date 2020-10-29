@@ -34,8 +34,8 @@ public class UnlaunchFeature {
         return new HashMap<>(properties);
     }
 
-    public UnlaunchConfig getVariationConfig() {
-        return new DefaultUnlaunchConfig(Collections.unmodifiableMap(properties));
+    public UnlaunchDynamicConfig getVariationConfig() {
+        return new DefaultUnlaunchDynamicConfig(Collections.unmodifiableMap(properties));
     }
 
     public String getEvaluationReason() {

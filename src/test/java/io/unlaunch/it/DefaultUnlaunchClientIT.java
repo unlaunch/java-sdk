@@ -2,7 +2,7 @@ package io.unlaunch.it;
 
 import io.unlaunch.UnlaunchAttribute;
 import io.unlaunch.UnlaunchClient;
-import io.unlaunch.UnlaunchConfig;
+import io.unlaunch.UnlaunchDynamicConfig;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -108,10 +108,10 @@ public class DefaultUnlaunchClientIT {
 
     @Test
     public void testVariationPropsAsConfig()  {
-        UnlaunchConfig c1 = client.getFeature( "presta-facil", user3Id).getVariationConfig();
+        UnlaunchDynamicConfig c1 = client.getFeature( "presta-facil", user3Id).getVariationConfig();
         Assert.assertEquals("bold", c1.getString("text_format"));
 
-        UnlaunchConfig c2 = client.getFeature("bolsas", user3Id, attr3_1, attr3_2,
+        UnlaunchDynamicConfig c2 = client.getFeature("bolsas", user3Id, attr3_1, attr3_2,
                 attr3_3).getVariationConfig();
         Assert.assertEquals("green", c2.getString("header_color"));
     }
