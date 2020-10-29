@@ -40,15 +40,15 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     private final CountDownLatch gate;
     private final JsonObjectConversionHelper flagService = new JsonObjectConversionHelper();
     private final JSONParser parser = new JSONParser();
-    private final AtomicBoolean successSignal;
+    private final AtomicBoolean downloadSuccessful;
     private final AtomicInteger numHttpCalls = new AtomicInteger(0);
 
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchHttpDataStore.class);
 
-    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean successSignal) {
+    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean downloadSuccessful) {
         this.restWrapper = restWrapper;
         this.gate = gate;
-        this.successSignal = successSignal;
+        this.downloadSuccessful = downloadSuccessful;
         this.flagsMap = new ConcurrentHashMap<>();
     }
 
@@ -94,13 +94,11 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
             logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
         }
 
-        if (fetchedSuccessfully) {
-            successSignal.set(true);
-            gate.countDown();
-        } else {
-            successSignal.set(false);
-            gate.countDown();
+        if (!downloadSuccessful.get() && fetchedSuccessfully) {
+            downloadSuccessful.set(true);
         }
+
+        gate.countDown();
     }
 
     @Override

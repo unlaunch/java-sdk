@@ -39,7 +39,9 @@ public final class UnlaunchRestWrapper {
 
     /**
      * Invoke HTTP POST method for the current request synchronously.
-     * */
+     * @param entity
+     * @return {@link Response} response body
+     */
     public Response post(Entity<?> entity) {
         try {
             return invocationBuilder.post(entity);

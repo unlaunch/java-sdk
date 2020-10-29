@@ -105,7 +105,7 @@ enum Operator {
 //                return values.stream().mapToLong(value -> Long.valueOf(value)).anyMatch(longValue -> userDateTime.getEpoc() > longValue);
             }
 
-            return values.stream().mapToInt(value -> Integer.valueOf(value)).anyMatch(intValue -> Integer.valueOf(userValue.toString()) > intValue);
+            return values.stream().mapToDouble(value -> Double.valueOf(value)).anyMatch(doubleValue -> Double.valueOf(userValue.toString()) > doubleValue);
         }
     },
     /**
@@ -137,7 +137,7 @@ enum Operator {
                 return values.stream().map(value -> Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDateTime()).
                         anyMatch(ruleDateTime -> userDateTime.isEqual(ruleDateTime) || userDateTime.isAfter(ruleDateTime));
             }
-            return values.stream().mapToInt(value -> Integer.valueOf(value)).anyMatch(intValue -> Integer.valueOf(userValue.toString()) >= intValue);
+            return values.stream().mapToDouble(value -> Double.valueOf(value)).anyMatch(doubleValue -> Double.valueOf(userValue.toString()) >= doubleValue);
 
         }
     },
@@ -169,7 +169,7 @@ enum Operator {
                 return values.stream().map(value -> Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDateTime()).
                         anyMatch(ruleDateTime -> userDateTime.isBefore(ruleDateTime));
             }
-            return values.stream().mapToInt(value -> Integer.valueOf(value)).anyMatch(intValue -> Integer.valueOf(userValue.toString()) < intValue);
+            return values.stream().mapToDouble(value -> Double.valueOf(value)).anyMatch(doubleValue -> Double.valueOf(userValue.toString()) < doubleValue);
         }
 
     },
@@ -203,7 +203,7 @@ enum Operator {
 //                return values.stream().mapToLong(value -> Long.valueOf(value)).anyMatch(longValue -> userDateTime.getEpoc() <= longValue);
             }
 
-            return values.stream().mapToInt(value -> Integer.valueOf(value)).anyMatch(intValue -> Integer.valueOf(userValue.toString()) <= intValue);
+            return values.stream().mapToDouble(value -> Double.valueOf(value)).anyMatch(doubleValue -> Double.valueOf(userValue.toString()) <= doubleValue);
         }
 
     },

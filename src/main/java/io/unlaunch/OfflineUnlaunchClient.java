@@ -68,7 +68,7 @@ public class OfflineUnlaunchClient implements UnlaunchClient {
     }
 
     @Override
-    public boolean isInitialized() {
+    public boolean isReady() {
         return true;
     }
 

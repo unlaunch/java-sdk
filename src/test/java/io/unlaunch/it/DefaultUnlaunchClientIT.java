@@ -2,16 +2,13 @@ package io.unlaunch.it;
 
 import io.unlaunch.UnlaunchAttribute;
 import io.unlaunch.UnlaunchClient;
-import io.unlaunch.UnlaunchConfig;
+import io.unlaunch.UnlaunchDynamicConfig;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 /**
  * Integration tests.
@@ -36,10 +33,11 @@ public class DefaultUnlaunchClientIT {
     UnlaunchAttribute attr3_3;
 
     // Test environment
-    static UnlaunchClient client = UnlaunchClient.builder().sdkKey("test-sdk-ff367fd3-accc-43e2-88d4-24edda0206c3").build();
-    
+    UnlaunchClient client;
     @Before
     public void init() {
+        client = UnlaunchClient.builder().sdkKey("test-sdk-ff367fd3-accc-43e2-88d4-24edda0206c3").build();
+
          attr1 = UnlaunchAttribute.newString("account_type", "prepaid");
          attr2 = UnlaunchAttribute.newNumber("max_loan", 500);
          attr3 = UnlaunchAttribute.newNumber("min_loan", 50);
@@ -52,11 +50,15 @@ public class DefaultUnlaunchClientIT {
         attr3_2 = UnlaunchAttribute.newNumber("max_loan", 400);
         attr3_3 = UnlaunchAttribute.newNumber("min_loan", 50);
 
+        Assert.assertFalse(client.isReady());
         try {
-            client.awaitUntilReady(5, TimeUnit.SECONDS);
+            client.awaitUntilReady(10, TimeUnit.SECONDS);
         } catch (InterruptedException | TimeoutException e) {
-
+            System.out.println(("Client was not ready"));
+            Assert.fail("client was not ready");
         }
+
+        Assert.assertTrue(client.isReady());
     }
 
     @Test
@@ -106,16 +108,16 @@ public class DefaultUnlaunchClientIT {
 
     @Test
     public void testVariationPropsAsConfig()  {
-        UnlaunchConfig c1 = client.getFeature( "presta-facil", user3Id).getVariationConfig();
+        UnlaunchDynamicConfig c1 = client.getFeature( "presta-facil", user3Id).getVariationConfig();
         Assert.assertEquals("bold", c1.getString("text_format"));
 
-        UnlaunchConfig c2 = client.getFeature("bolsas", user3Id, attr3_1, attr3_2,
+        UnlaunchDynamicConfig c2 = client.getFeature("bolsas", user3Id, attr3_1, attr3_2,
                 attr3_3).getVariationConfig();
         Assert.assertEquals("green", c2.getString("header_color"));
     }
 
-    @AfterClass
-    public static void close() throws Exception {
+    @After
+    public void close() throws Exception {
         client.shutdown();
     }
 }

@@ -26,8 +26,8 @@ public final class JsonObjectConversionHelper {
     
     /**
      * Transform flags in JSONArray object to List of feature flags.
-     * @param flags
-     * @return
+     * @param flags array of flags
+     * @return list of {@link FeatureFlag}
      */
     public List<FeatureFlag> toUnlaunchFlags(JSONArray flags) {
 

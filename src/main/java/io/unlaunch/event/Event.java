@@ -1,5 +1,8 @@
 package io.unlaunch.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +19,11 @@ public class Event {
     private final Object value;
     private Map<String, Object> properties;
     private String sdk = "Java";
-    private final String sdkVersion = "1.0";
+    private final String sdkVersion = SdkVersion.VERSION_FROM_MANIFEST;
     private final String secondaryKey;
-
     final static Object EMPTY_OBJECT = new Object();
+
+    private static final Logger logger = LoggerFactory.getLogger(Event.class);
 
     public Event(String type, String key) {
         this(type, key, "");

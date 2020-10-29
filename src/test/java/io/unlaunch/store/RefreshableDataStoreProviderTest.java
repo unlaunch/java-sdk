@@ -1,15 +1,13 @@
 package io.unlaunch.store;
 
 import io.unlaunch.exceptions.UnlaunchHttpException;
-import io.unlaunch.exceptions.UnlaunchTimeoutException;
 import io.unlaunch.UnlaunchRestWrapper;
 
-import io.unlaunch.utils.UnlaunchData;
+import io.unlaunch.utils.UnlaunchTestHelper;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
@@ -28,7 +26,7 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testThatOnlySingletonInstanceIsCreated() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchData.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
