@@ -14,6 +14,7 @@ if [ -z "$OSSRH_USERNAME" ]; then
   echo "missing environment value: OSSRH_USERNAME" >&2
   exit 1
 fi
+echo "environment value: $OSSRH_USERNAME" >&2
 
 if [ -z "$OSSRH_PASSWORD" ]; then
   echo "missing environment value: OSSRH_PASSWORD" >&2
