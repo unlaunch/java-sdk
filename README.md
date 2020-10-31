@@ -1,14 +1,11 @@
 # Unlaunch Java SDK
 
 ## Overview
-Unlaunch Java SDK is designed to help with work with Unlaunch a platform for feature flags. Feature flags are created
- and defined using the Unlaunch web console which is available at [https://app.unlaunch.io](https://app.unlaunch.io).
+The Unlaunch Java SDK provides a Java API to access Unlaunch. Using the SDK, you can easily build Java applications that can evaluate feature flags, access configuration, and more.
 
-In a nutshell, here is how this SDK works:
+To create feature flags to use with Java SDK, login to your Unlaunch Console at [https://app.unlaunch.io](https://app.unlaunch.io).
 
-- On initialization, it connects to your Unlaunch project and downloads all feature flags
-- You evaluate feature flags using its public methods.
-- Feature flag changes are automatically fetched in, so you do not need to refresh.
+For more information, visit the [official guide](https://docs.unlaunch.io/docs/sdks/java-sdk).
 
 ### Compatibility
 Unlaunch Java SDK requires Java 8 or higher.
@@ -19,31 +16,30 @@ Here is a simple example:
 ```java
 import io.unlaunch.UnlaunchClient;
 
-public class ExampleApp {
+public class ExampleApp { 
+   public static void main(String[] args) {
+       UnlaunchClient client = UnlaunchClient.create("INSERT_YOUR_SDK_KEY");
 
-        public static void main(String[] args) {
+       String variation = client.getVariation("flagKey", "userId123");
 
-            UnlaunchClient client = UnlaunchClient.create("INSERT_YOUR_SDK_KEY");
-            String variation = client.getVariation("flagKey", "userId123");
-            if (variation.equals("on")) {
-                System.out.println("Variation is on");
-            } else if (variation.equals("off")) {
-                System.out.println("Variation is off");
-            } else {
-                System.out.println("default variation");
-            }
+       if (variation.equals("on")) {
+           System.out.println("Variation is on");
+       } else if (variation.equals("off")) {
+           System.out.println("Variation is off");
+       } else {
+           System.out.println("default variation");
+       }
 
-            // If you want to pass attributes which are used in the targeting rules
-            variation = client.getVariation("flagKey", "userId123", 
-                            UnlaunchAttribute.newString("device-type", "iOS"), 
-                            UnlaunchAttribute.newBoolean("paid-user", true));
+       // If you want to pass attributes which are used in the targeting rules
+       String variation = client.getVariation("flagKey", "userId123");
 
-            // If you attached (key-value) configuration to your feature flag variations, here's how you can retrieve it:
-            Feature f = client.getFeature("flagKey", "userId123");
-            f.getVariationConfig().getString("buttonColor");
+      // If you attached (key-value) configuration to your feature flag variations, 
+      // here's how you can retrieve it:
+       Feature f = client.getFeature("flagKey", "userId123");
+       f.getVariationConfig().getString("buttonColor");
 
-            client.shutdown();
-        }
+       client.shutdown();
+   }
 }
 ```
 
@@ -70,9 +66,9 @@ mvn clean install -Dmaven.test.skip=true
 ### Adding as a dependency in your project
 ```$xslt
   <dependency>
-      <groupId>com.unlaunch</groupId>
+      <groupId>io.unlaunch.sdk</groupId>
       <artifactId>unlaunch-java-sdk</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>1.0.0</version>
   </dependency>
 ```
 
@@ -87,8 +83,14 @@ UnlaunchClient.builder().
                 build();
 ```
 
+## Contributing
+Please see [CONTRIBUTING](CONTRIBUTING.md) to find how you can contribute.
 
 ## License
-TBD
+Licensed under the Apache License, Version 2.0. See: [Apache License](LICENSE.md).
 
-Visit [www.unlaunch.io](www.unlaunch.io) to learn more about Unlaunch.
+## About Unlaunch
+Unlaunch is a Feature Release Platform for engineering teams. Our mission is allow engineering teams of all
+ sizes to release features safely and quickly to delight their customers. To learn more about Unlaunch, please visit
+  [www.unlaunch.io](www.unlaunch.io). You can sign up to get started for free at [https://app.unlaunch.io/signup
+  ](https://app.unlaunch.io/signup).

@@ -30,7 +30,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private TimeUnit pollingIntervalTimeUnit = TimeUnit.SECONDS;
     private long eventFlushInterval = 60;
     private TimeUnit eventFlushIntervalTimeUnit = TimeUnit.SECONDS;
-    private String host = "http://api.unlaunch.io";
+    private long impressionsForLiveTailIntervalInSeconds = 5;
+    private String host = "http://api.unlaunch.io"; // TODO Change to https;
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
@@ -152,9 +153,9 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
         final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
-         final AtomicBoolean isDownloadSuccess = new AtomicBoolean(false);
+         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
         RefreshableDataStoreProvider refreshableDataStoreProvider =
-                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, isDownloadSuccess,
+                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, downloadSuccessful,
                         pollingIntervalInSeconds);
 
         // Try to make sure there are no errors or abandon object construction
@@ -172,14 +173,14 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
         EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler("impression",
-                impressionApiRestClient, 1);
+                impressionApiRestClient, impressionsForLiveTailIntervalInSeconds, 100);
 
         EventHandler flagInvocationMetricHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, 30,
                 TimeUnit.SECONDS);
 
         return  DefaultUnlaunchClient.create(
                 dataStore, eventHandler, flagInvocationMetricHandler, impressionsEventHandler,
-                initialDownloadDoneLatch, isDownloadSuccess,
+                initialDownloadDoneLatch, downloadSuccessful,
                 isOffline, () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();

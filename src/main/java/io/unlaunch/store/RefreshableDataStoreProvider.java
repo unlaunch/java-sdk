@@ -3,7 +3,6 @@ package io.unlaunch.store;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.unlaunch.UnlaunchRestWrapper;
 import io.unlaunch.exceptions.UnlaunchRuntimeException;
-import io.unlaunch.utils.UnlaunchConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +23,7 @@ public final class RefreshableDataStoreProvider implements Closeable {
 
     private final AtomicReference<UnlaunchHttpDataStore> refreshableUnlaunchFetcherRef = new AtomicReference<>();
     private final CountDownLatch initialDownloadDoneLatch;
-    private final AtomicBoolean isDownloadSuccess;
+    private final AtomicBoolean downloadSuccessful;
     private final ScheduledExecutorService scheduledExecutorService;
 
     private static final Logger logger = LoggerFactory.getLogger(RefreshableDataStoreProvider.class);
@@ -32,12 +31,12 @@ public final class RefreshableDataStoreProvider implements Closeable {
     public RefreshableDataStoreProvider(
             UnlaunchRestWrapper restWrapper,
             CountDownLatch initialDownloadDoneLatch,
-            AtomicBoolean isDownloadSuccess,
+            AtomicBoolean downloadSuccessful,
             long dataStoreRefreshDelayInSeconds) {
         this.restWrapper = restWrapper;
         this.delay = dataStoreRefreshDelayInSeconds;
         this.initialDownloadDoneLatch = initialDownloadDoneLatch;
-        this.isDownloadSuccess = isDownloadSuccess;
+        this.downloadSuccessful = downloadSuccessful;
 
         ThreadFactoryBuilder threadFactoryBuilder = new ThreadFactoryBuilder();
         threadFactoryBuilder.setDaemon(true);
@@ -55,7 +54,7 @@ public final class RefreshableDataStoreProvider implements Closeable {
             return refreshableUnlaunchFetcherRef.get();
         }
 
-        UnlaunchHttpDataStore dataStore = new UnlaunchHttpDataStore(restWrapper, initialDownloadDoneLatch, isDownloadSuccess);
+        UnlaunchHttpDataStore dataStore = new UnlaunchHttpDataStore(restWrapper, initialDownloadDoneLatch, downloadSuccessful);
 
         try {
             scheduledExecutorService.scheduleWithFixedDelay(dataStore, 0L, delay, TimeUnit.SECONDS);

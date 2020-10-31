@@ -3,10 +3,10 @@ package io.unlaunch;
 import java.util.HashMap;
 import java.util.Map;
 
-final class DefaultUnlaunchConfig implements UnlaunchConfig {
+final class DefaultUnlaunchDynamicConfig implements UnlaunchDynamicConfig {
     private final Map<String, String> configMap;
 
-    DefaultUnlaunchConfig(Map<String, String> configMap) {
+    DefaultUnlaunchDynamicConfig(Map<String, String> configMap) {
         if (configMap == null) {
             this.configMap = new HashMap<>(1);
         } else {

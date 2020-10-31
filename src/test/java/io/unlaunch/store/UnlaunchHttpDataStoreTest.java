@@ -2,7 +2,7 @@ package io.unlaunch.store;
 
 import io.unlaunch.exceptions.UnlaunchHttpException;
 import io.unlaunch.UnlaunchRestWrapper;
-import io.unlaunch.utils.UnlaunchData;
+import io.unlaunch.utils.UnlaunchTestHelper;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.Assert;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class UnlaunchHttpDataStoreTest {
 
     @Test
-    public void testLatchAndSuccessThereIsAnHttpError() {
+    public void testLatchIsClosedWhenThereIsAnHttpError() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
         when(unlaunchRestWrapper.get(any())).thenThrow(new UnlaunchHttpException());
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
@@ -39,7 +39,7 @@ public class UnlaunchHttpDataStoreTest {
     @Test
     public void testCountdownLatchIsDecrementedOnServerResponse() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchData.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
         AtomicBoolean atomicBoolean = new AtomicBoolean();
 
@@ -55,7 +55,7 @@ public class UnlaunchHttpDataStoreTest {
     @Test
     public void testParsedFlagDataWhenSuccessfullyDownloaded() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchData.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
         AtomicBoolean atomicBoolean = new AtomicBoolean();
 

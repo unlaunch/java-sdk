@@ -7,7 +7,7 @@ import io.unlaunch.exceptions.UnlaunchConversionException;
  *
  * @author umermansoor
  */
-public interface UnlaunchConfig {
+public interface UnlaunchDynamicConfig {
 
     /**
      * Checks if the configuration contains the specified key.

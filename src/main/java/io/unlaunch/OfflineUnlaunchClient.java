@@ -68,7 +68,7 @@ public class OfflineUnlaunchClient implements UnlaunchClient {
     }
 
     @Override
-    public boolean isInitialized() {
+    public boolean isReady() {
         return true;
     }
 
@@ -85,7 +85,8 @@ public class OfflineUnlaunchClient implements UnlaunchClient {
         } else {
             return UnlaunchFeature.create(flag,
                     UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE,
-                    new HashMap<>(1), "Client is initialized in offline Mode. Returning 'none' for everything");
+                    new HashMap<>(1),
+                    "Client is initialized in Offline Mode. Returning 'control' variation for all flags.");
         }
     }
 

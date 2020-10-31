@@ -40,15 +40,15 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     private final CountDownLatch gate;
     private final JsonObjectConversionHelper flagService = new JsonObjectConversionHelper();
     private final JSONParser parser = new JSONParser();
-    private final AtomicBoolean successSignal;
+    private final AtomicBoolean downloadSuccessful;
     private final AtomicInteger numHttpCalls = new AtomicInteger(0);
 
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchHttpDataStore.class);
 
-    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean successSignal) {
+    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean downloadSuccessful) {
         this.restWrapper = restWrapper;
         this.gate = gate;
-        this.successSignal = successSignal;
+        this.downloadSuccessful = downloadSuccessful;
         this.flagsMap = new ConcurrentHashMap<>();
     }
 
@@ -56,8 +56,8 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public void run() {
         numHttpCalls.incrementAndGet();
         boolean fetchedSuccessfully = false;
-
         String restApiResponse = null;
+
         try {
             restApiResponse = restWrapper.get(String.class);
 
@@ -87,20 +87,18 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                 logger.debug("cached {} feature flag", flagsMap.size());
             }
         } catch ( UnlaunchHttpException ex) {
-            logger.warn("unable to fetch feature flags using REST API " + ex.getMessage());
+            logger.warn("unable to fetch flags using REST API " + ex.getMessage());
         } catch (ParseException pex) {
-            logger.warn("unable to parse feature flags using REST API response {}", restApiResponse);
+            logger.warn("unable to parse flags response that the API returned: {}. Error {}", restApiResponse);
         } catch (Exception e) {
-            logger.warn("unable to fetch feature flags using REST API " + e.getMessage());
+            logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
         }
 
-        if (fetchedSuccessfully) {
-            successSignal.set(true);
-            gate.countDown();
-        } else {
-            successSignal.set(false);
-            gate.countDown();
+        if (!downloadSuccessful.get() && fetchedSuccessfully) {
+            downloadSuccessful.set(true);
         }
+
+        gate.countDown();
     }
 
     @Override

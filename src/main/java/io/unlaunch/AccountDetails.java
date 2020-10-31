@@ -1,7 +1,14 @@
 package io.unlaunch;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 /**
  *  Account details for the current {@link UnlaunchClient}
@@ -9,11 +16,11 @@ import java.util.Objects;
  * @author umermansoor
  */
 public class AccountDetails {
-
     private final String projectName;
     private final String environmentName;
-
     private final int totalFlags;
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountDetails.class);
 
      AccountDetails(String projectName, String environmentName, int totalFlags) {
         this.projectName = projectName;
@@ -56,4 +63,5 @@ public class AccountDetails {
     public int hashCode() {
         return Objects.hash(getProjectName(), getEnvironmentName(), totalFlags);
     }
+
 }

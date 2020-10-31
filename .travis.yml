@@ -1,28 +1,32 @@
-sudo: required #required to use docker
 language: java
-jdk: openjdk8
+jdk:
+- openjdk10
 
-cache:
-  directories:
-    - .autoconf
-    - $HOME/.m2
-
-services:
-  - docker
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_38d36e6ce5c2_key -iv $encrypted_38d36e6ce5c2_iv
+  -in .travis/all_maven_central.gpg.enc -out .travis/all_maven_central.gpg -d
 
 install:
-  - cp .travis.settings.xml $HOME/.m2/settings.xml && mvn clean install
-
-script:
-  - echo "no tests!" # put your normal testing scripts here
-  - ls -l
+  - mvn clean install -Dgpg.skip --settings "${TRAVIS_BUILD_DIR}/.travis/mvn-settings.xml"
 
 deploy:
+- skip_cleanup: true
   provider: script
-  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy"
-  skip_cleanup: true
+  script: "./deploy"
   on:
-    branch: master
+    branch: main
+- skip_cleanup: true
+  provider: script
+  script: "./deploy"
+  on:
+    tags: true
+
+env:
+  global:
+  - secure: Uw3hVUwUI6bIO8GZAlZsuOXII2mGnJN41/0te2f+6pLIDYHSioKK1iyt4jLYd9C1nG5GQDIcG39wm6FJ1S6BBPTx3fXdTWRmIY7PEgWbYPACDOiH9AOGqcMafEaGcB5tpEzfpd7UIBiDGaoxIa9XvcYtEao+/FfVrR29jErdJ/QufZg8qJ8G9BMe8QknzoUIGBs4Qg1tfdw+fGx+GA+1N3Wo1JQIhgUNpUNJJFOmwXYbfvwVbA7tSOSXrRhEheBnnTengo9ZEOYQ4cMUraFDA6BQ0DcszNhS6jj3kF3IjPQGVLsOZW1j+397kqjxbyJdSQZek2Qxpk30NqxJRdd6NSkA6yTD4VRjSFYfR0OzfeMrsCfCbDkrgaE1jmb+OVk1qv0OR9dFn54FXfW07K9Bm9E6eZq+OKtwZrob8e3G+goEfQI74yTz3sj5BF98dGH1whUMHwtwcG4XxZ8r7V58cTgbWl6CRGSZtSYI7fzPEDmLt9zcZs8gGNBuy9jKtB1gQcU7yoOdqk3KsJv8NXpiKheRh685zHDemRgeWdlxR3OsualY3Ee7OQGwxbunQPW8wPRPOYJ7ZeGlmYZUjZYkk41r9NRUXGy6ID7fx6F024hpWp+YUvxhVPiqFO4xn1AOLqA3ZZBSB22nTjyMub1gHiR3IikGP6Fh5rcFic1X+YY=
+  - secure: iZhgwjI7CeIN6LyZiUcMF4/05EbzSkQiTMh7n4CGR8CE7MIwwCmlAfg/1KfQKqeZJlOmBte6t6X6TWO/9pM6TzvkaxUBiXZyiv37yhv/zfJO2LXjJZapjhLY02bL9l0umerCfeC86v48GljnRm3OlcUMcPAP1dydIOVrNa3bPBGQYyb3vn8+eCRkksmEzvG4/PZbvyrCc443rlqtCiaqAyBh+bZm9YtJDXI3qmouOwrIGs4Bca8ML0QTyYmR5yfcJC+3oKt9TiNWkXhu3/BtpDyU0RlfT7NjTH2Zd27pywSAdov/Wh/49nqmRn4f0yxyhel4w3f6WcTz1bJ0CohtZhhD6HEkWp7STna22jjXkM64DFsL86iavGmFAgseQ70pHL3dh/SSByOh/U9aefRW0OX6DpZSeeWtol3U2UqxSzsITEkdg96fwRAFM1QLakrHybvA5Wp+mvbdMuhgtMum68RpjtkjuD0BOu/2clIh4W9kd6u1RFkFjBO+wpdpea+FZAXChEOL5rwfRproFHKb5ssb3gWEGw3s0YBc4WFrUlumvfoagjJtdpw7ZjF36PXnMp6qJwGnBcNX1XJ+BBoWGcMPZpP7HHjlKUuPg8tE5yMz62MUB/BRjGD0YsLZB/Pf1QfN4z8Rx51x02YQDjADCY0CEKheJv9WdcrV+FjOegc=
+  - secure: qqfkJEQaq73bZLPo84cqi2nN9hKZcK1E+l4yMXvPLsTMG4WithlYVr8pmK79ncASD/LgHetavjll8HSHJis3LT39BXOn67cO0pRgK8nI4DemgYHB/yPMe1ml2ENlbTQBwNg2Ny4MplAm89vWbtyTNTmCdJTYilbCJSsHPAzBEc9kHwI4K1bUEAV8MO/wZZvURIqtnXOMBNFDSPJ5IHYNQc1Lz1rRuGZMDOW30gQa4p3TZ6DE8bfDFupstpQN8fwCNLbju4w58WA/j2QyY9Mwy2EJwVWGiQyw2u6/6sR4R9RK7Rc64gQTEC9el0+Zkw61YhLsiKqLjWS7gj7L0mEQq54IUhMW6H1HUolbNawp69Xk/bSVwq7dHOQDLRZVMc1mEVGI5F4spXdtdxLy1H+kYmEpwUZ1Bx1s2CYA3Zvu42RpsvnuoeoT1MEkkPJXR1xBXL+amPEIpMPBmjnsI4K+wm1OX3hFRiKxLDRpqv8ApUSmLl4qA1/bP3uJkI981TJL9mbYMOFf8+3LJTeJPTf2OEt9zXGmXkvZSuUhyQody7M+7NQFTr9bYAmHXuutHCXO9YKJAOw4WuJT90QMmkg5wuTcO6pVwW0aqExGc1T/M4ebmqvmzNCnGbgGTuEloyRGjOwJQQTAzWBY7XEBuNm/EocxP1s+g5hK9lnq7VmXbak=
+  - secure: D6/WbEPzX7qkeibBaDpXErKBDW2ewb2vrdFAyaHC1YwJc7HY1C4HvbZvmpNH/LYLMqCue4rB3Eu4qHCFnWxsRilWwsnKCADAh1gP45go1uYo2reV1YYZjdvkp3Dun6hx2Vy0gmcPsVapf7WqIrxGEDBHB4KdG9lIoHznJK6tQPX6EFL71fqzAlxj4ik4zcfzG14C9bwo0HUZTKfjp04YAj3GOjsiOikc580zGiUOTt5U+tcRCmjuR4PNOQC+za9/kiJui8jrgBkJxu3Bi5ER6Okbbn4wv4po7y10bvt1NJ0ZRquZUaTVSbRqfIpRpzA1REMh68DEvHWO4a+ky2B04rVe0cINIDbR+h3E5uMTCIRMgZoAWafIQlYHE0pMqV+liX6t4hWsD30WUARDPJLPKwwcDjM02PZtR18p/mqUHZQJHwMTvjSESE+dyvD8X9hUek7szz0hgt/xUgdWnyKme7toYkdxLZUWlwDo3zLJf7//6vUVe7lokNyj8VwZNfkaDSOxsA6jaE2M1vmmr6LnJgGjlJl76ffdHQePUard+r0K6a1wZWUCdtweSkvKXAwbMFvXWBBDq5g/pbiMfwPItiKDIwnMoXJG4OLkFLbTTPx8FlvRiHaljWVQF14PCdvFf1sjKqCz2x4bMxpYwMZP+JMOecu9d3Y77ovlcvmQ1iw=
 
 notifications:
-  slack: $SLACK_URL
+  slack: crovate:QnF0NqS4HWq69w3HbnaGw777
