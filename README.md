@@ -77,10 +77,7 @@ mvn clean install -Dmaven.test.skip=true -Dgpg.skip
 ### Using the builder to specify settings
 
 ```$xslt
-UnlaunchClient.builder().
-                sdkKey("sdkKey").
-                eventFlushInterval(-1, TimeUnit.SECONDS).
-                build();
+UnlaunchClient.builder().sdkKey("sdkKey").eventFlushInterval(-1, TimeUnit.SECONDS).build();
 ```
 
 ## Contributing
@@ -99,3 +96,6 @@ Unlaunch is a Feature Release Platform for engineering teams. Our mission is all
 
 ##### Question: I'm seeing `gpg: signing failed: Inappropriate ioctl for device`
 Answer: Please run `export GPG_TTY=$(tty)` See: https://github.com/keybase/keybase-issues/issues/2798
+
+##### Question: Where are the artifacts deployed as a result of `mvn deploy`?
+Answer: The artifacts are published on Sonatype at: https://oss.sonatype.org/#nexus-search;quick~io.unlaunch.sdk
