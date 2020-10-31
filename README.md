@@ -51,7 +51,7 @@ public class ExampleApp {
 
 To build the project using maven, run the following command:
 ```$xslt
-mvn clean install 
+mvn clean install -Dgpg.skip
 ```
 To run all unit and integration tests:
 ```$xslt
@@ -60,7 +60,7 @@ mvn verify
 
 If tests are failing, and you need to build (not recommended,) you can force to skip tests:
 ```$xslt
-mvn clean install -Dmaven.test.skip=true
+mvn clean install -Dmaven.test.skip=true -Dgpg.skip
 ```
 
 ### Adding as a dependency in your project
@@ -94,3 +94,8 @@ Unlaunch is a Feature Release Platform for engineering teams. Our mission is all
  sizes to release features safely and quickly to delight their customers. To learn more about Unlaunch, please visit
   [www.unlaunch.io](www.unlaunch.io). You can sign up to get started for free at [https://app.unlaunch.io/signup
   ](https://app.unlaunch.io/signup).
+
+## FAQs
+
+##### Question: I'm seeing `gpg: signing failed: Inappropriate ioctl for device`
+Answer: Please run `export GPG_TTY=$(tty)` See: https://github.com/keybase/keybase-issues/issues/2798
