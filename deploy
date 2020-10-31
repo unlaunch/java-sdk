@@ -32,7 +32,7 @@ fi
 
 # Prepare the local keyring (requires travis to have decrypted the file
 # beforehand)
-gpg --fast-import .travis/gpg.asc
+gpg --fast-import .travis/all_maven_central.gpg
 
 if [ ! -z "$TRAVIS_TAG" ]
 then

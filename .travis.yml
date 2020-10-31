@@ -11,7 +11,6 @@ env:
 before_deploy:
 - openssl aes-256-cbc -K $encrypted_38d36e6ce5c2_key -iv $encrypted_38d36e6ce5c2_iv
   -in .travis/all_maven_central.gpg.enc -out .travis/all_maven_central.gpg -d
-- gpg --import .travis/all_maven_central.gpg
 deploy:
 - skip_cleanup: true
   provider: script
