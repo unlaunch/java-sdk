@@ -2,8 +2,6 @@ language: java
 jdk:
   - openjdk10
 install: "/bin/true"
-script:
-  - "./test"
 env:
   global:
     - secure: O59cUQ/sX16p+BWWETWNLtX40gj4HSVssUylAXvvp7R2t/t3cUJ6rZxAMjDrnHHHhYjT1EhsLpEeo+FflQy3mll17CkC7bgGzfmDSg9JkePwTND6GhLF05ly97Ltk3g/kipVznxLR6dnmv5buoTB8K9/wVsOkoy7EI1Ldr521HJvxXrZRW0z6Lqh5I46PSo1KzOJSVi+hMSfaOH4jShfoeZvAvpAOKooJTp+2+gTDNCPzzS3U9Uf2qNDfTI/+8z1sr8bfhYpGzLkR2hujaycaTs3eFuV7tm/DxSOIhueWhthQ2Cydtc6mYrnhSEXgbvd4oW7Eh0GcOS04sghs2KYVXU9O4lZIXsq4eHljG5MrPQZdF7yT1+vkY/Sda7dPh/twj6HIlUGz/Jd8/pSY3ro4vNMdRBxcWnl9rrCjPU3tdlhq0aoykro68etuo97u6HzFUH+gHLmVcNpG1wjPCn3b01oxrk+3CBGdLg13AGLa5KS1CsTrOuJmml75irUUvw+SYe9WejWAyP55CcWCWbeKyX8AvHo6dwryBNqxLfgvJhgPyiFQOVoj3gjEZV563gk19s2WhXYx402mndolwTmYad3Bbcdg1SQz+3yfvjQtGpcjy24zB59YWJH/gKhzJh2K39oS3W6Th7xiQcYGJeZpl/03hFuveLvrXwsClUSoB4=
