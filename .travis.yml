@@ -1,28 +1,27 @@
-sudo: required
 language: java
-jdk: openjdk8
-before_install:
-- openssl aes-256-cbc -K $encrypted_38d36e6ce5c2_key -iv $encrypted_38d36e6ce5c2_iv
-  -in all_maven_central.gpg.enc -out ./all.gpg -d
-- gpg --import all.gpg
-cache:
-  directories:
-  - ".autoconf"
-  - "$HOME/.m2"
-services:
-- docker
-install:
-- cp .travis.settings.xml $HOME/.m2/settings.xml && mvn clean install
-deploy:
-  provider: script
-  script: mvn --settings .travis.settings.xml deploy -Dmaven.test.skip=true
-  skip_cleanup: true
-  on:
-    branch: main
-notifications:
-  slack: "${env.SLACK_URL_NOTIFICATIONS}"
+jdk:
+  - openjdk10
+install: "/bin/true"
+script:
+  - "./test"
 env:
   global:
-  - secure: O59cUQ/sX16p+BWWETWNLtX40gj4HSVssUylAXvvp7R2t/t3cUJ6rZxAMjDrnHHHhYjT1EhsLpEeo+FflQy3mll17CkC7bgGzfmDSg9JkePwTND6GhLF05ly97Ltk3g/kipVznxLR6dnmv5buoTB8K9/wVsOkoy7EI1Ldr521HJvxXrZRW0z6Lqh5I46PSo1KzOJSVi+hMSfaOH4jShfoeZvAvpAOKooJTp+2+gTDNCPzzS3U9Uf2qNDfTI/+8z1sr8bfhYpGzLkR2hujaycaTs3eFuV7tm/DxSOIhueWhthQ2Cydtc6mYrnhSEXgbvd4oW7Eh0GcOS04sghs2KYVXU9O4lZIXsq4eHljG5MrPQZdF7yT1+vkY/Sda7dPh/twj6HIlUGz/Jd8/pSY3ro4vNMdRBxcWnl9rrCjPU3tdlhq0aoykro68etuo97u6HzFUH+gHLmVcNpG1wjPCn3b01oxrk+3CBGdLg13AGLa5KS1CsTrOuJmml75irUUvw+SYe9WejWAyP55CcWCWbeKyX8AvHo6dwryBNqxLfgvJhgPyiFQOVoj3gjEZV563gk19s2WhXYx402mndolwTmYad3Bbcdg1SQz+3yfvjQtGpcjy24zB59YWJH/gKhzJh2K39oS3W6Th7xiQcYGJeZpl/03hFuveLvrXwsClUSoB4=
-  - secure: t6bOmYdAtuzFEBCq8KS7hxNdcAJdCrY2ELSHaqjBzSz50C/5EIZWuHksWGDirj/JlhqDEYnUakDZSAqmmP4IZdPJU9ZUUvVhxPl4l0CQAvCMbQfuLOfE8xOeZNPmmcJkt3NVmxqFGrteHrArvu1rMgL4HLr4ivhZAjW2Re6xkJ1R34xWgr9sgdlkM7Sf9skjS+17WX/BXk6/fFY35s7M4AYGoJPEMzAl/vvGTSG3n3lzKxoYfoZUcqWXp7ty0o6QUUb//gVehOqz3l1hCzWEa1ETaDbOaHAf0ZIZKmowOqjjlbzY3HckLXZRdA4lGg7zdVgvGjcmQ/hsj6sk4IM6cjaugx8FBarzm6adsOKRVGhCbUiCnGAXQlGuAa1lvZQEbKONuCIXEmlsVwb19LX2bvZflAHpOxtbhmiRw+POBrJhgoyOFrHVmar99NB3imzQLWVgkCbFVv+XlLUjjgLtSrecfEcPlR+vYma5HCz5N00Y/sO35oJvErNgh+lRZInJhMto39F2fFYx3MAtrW5+7n4Wdf8GS+Jwl/qtY+p9KlxhffH4HbmHK+oc52k203bwqnluL/+DXdxDt6xYTIJjhVKp2aXHPxsCKPuK/ZHwUizYFwghz7PkKKYVhW9v3unm+y9NQ4zRmEoTEXHH9ZIwF41GxiJeSdP1J8gJSbcaSsQ=
-  - secure: PRJ/2TksbdGdMULxgwsBU242Aj7br56vNGoVGSlX1a0yxKCdTJaKr7i+v4uf7SxbcBHAErBtUTs0zY5WRbNKtaGqpB3SGPPTYy0yHYfkChokZhd1Dj2TAg85P/qI1OCzF+lseqlldNpGZxKTUtvkXhu0aSXmfanzoMMHYVD5+t8CJzfA5QS/MsI7HLBjPY/IH3dQcL04ksRVk2nhxNl21Zbe5yB7Js8N4B0CdmEtw+x7h8lSqeFBug0ukctcdIgxVlYZusd+eXJupzfc5vYOUCVx/ElwU5l9mmj83zBYQ9mFgBWIt31XM9G60bHOhg1P+8Rs+4w5pN3yPV4UENCTHlPKcieZ3jfZ4oAUWmzhIe+FzBzbJ/zF9UqJQZc3QZHj87kaAn9cwyqKPkP/2eUqnXZh66XozjPMRYPX57IDKOg9p9Zeio7r7NVTV7r1BzR09C/Xm2Eeh+Tfuobqny+wayveGl26exr6GJP0hPKmW0dyOmXYAhkAefVdpzuvr0f2+lIfgXzo9CFYEkuzQT0/TTrDvmOLBwkJNLCJ2i6Urycxs5v2kmttQf0ktssbwUZ4AaxNTvObMtsOvNU7hmWr5weKei5RX97Io5+7KdR8bMGychTKQc06PQRP3tlkjXzMYifwWQlxpj9KfDF8535ecPyr+Vpvp8kbDOfOqzTDQsI=
+    - secure: O59cUQ/sX16p+BWWETWNLtX40gj4HSVssUylAXvvp7R2t/t3cUJ6rZxAMjDrnHHHhYjT1EhsLpEeo+FflQy3mll17CkC7bgGzfmDSg9JkePwTND6GhLF05ly97Ltk3g/kipVznxLR6dnmv5buoTB8K9/wVsOkoy7EI1Ldr521HJvxXrZRW0z6Lqh5I46PSo1KzOJSVi+hMSfaOH4jShfoeZvAvpAOKooJTp+2+gTDNCPzzS3U9Uf2qNDfTI/+8z1sr8bfhYpGzLkR2hujaycaTs3eFuV7tm/DxSOIhueWhthQ2Cydtc6mYrnhSEXgbvd4oW7Eh0GcOS04sghs2KYVXU9O4lZIXsq4eHljG5MrPQZdF7yT1+vkY/Sda7dPh/twj6HIlUGz/Jd8/pSY3ro4vNMdRBxcWnl9rrCjPU3tdlhq0aoykro68etuo97u6HzFUH+gHLmVcNpG1wjPCn3b01oxrk+3CBGdLg13AGLa5KS1CsTrOuJmml75irUUvw+SYe9WejWAyP55CcWCWbeKyX8AvHo6dwryBNqxLfgvJhgPyiFQOVoj3gjEZV563gk19s2WhXYx402mndolwTmYad3Bbcdg1SQz+3yfvjQtGpcjy24zB59YWJH/gKhzJh2K39oS3W6Th7xiQcYGJeZpl/03hFuveLvrXwsClUSoB4=
+    - secure: t6bOmYdAtuzFEBCq8KS7hxNdcAJdCrY2ELSHaqjBzSz50C/5EIZWuHksWGDirj/JlhqDEYnUakDZSAqmmP4IZdPJU9ZUUvVhxPl4l0CQAvCMbQfuLOfE8xOeZNPmmcJkt3NVmxqFGrteHrArvu1rMgL4HLr4ivhZAjW2Re6xkJ1R34xWgr9sgdlkM7Sf9skjS+17WX/BXk6/fFY35s7M4AYGoJPEMzAl/vvGTSG3n3lzKxoYfoZUcqWXp7ty0o6QUUb//gVehOqz3l1hCzWEa1ETaDbOaHAf0ZIZKmowOqjjlbzY3HckLXZRdA4lGg7zdVgvGjcmQ/hsj6sk4IM6cjaugx8FBarzm6adsOKRVGhCbUiCnGAXQlGuAa1lvZQEbKONuCIXEmlsVwb19LX2bvZflAHpOxtbhmiRw+POBrJhgoyOFrHVmar99NB3imzQLWVgkCbFVv+XlLUjjgLtSrecfEcPlR+vYma5HCz5N00Y/sO35oJvErNgh+lRZInJhMto39F2fFYx3MAtrW5+7n4Wdf8GS+Jwl/qtY+p9KlxhffH4HbmHK+oc52k203bwqnluL/+DXdxDt6xYTIJjhVKp2aXHPxsCKPuK/ZHwUizYFwghz7PkKKYVhW9v3unm+y9NQ4zRmEoTEXHH9ZIwF41GxiJeSdP1J8gJSbcaSsQ=
+    - secure: PRJ/2TksbdGdMULxgwsBU242Aj7br56vNGoVGSlX1a0yxKCdTJaKr7i+v4uf7SxbcBHAErBtUTs0zY5WRbNKtaGqpB3SGPPTYy0yHYfkChokZhd1Dj2TAg85P/qI1OCzF+lseqlldNpGZxKTUtvkXhu0aSXmfanzoMMHYVD5+t8CJzfA5QS/MsI7HLBjPY/IH3dQcL04ksRVk2nhxNl21Zbe5yB7Js8N4B0CdmEtw+x7h8lSqeFBug0ukctcdIgxVlYZusd+eXJupzfc5vYOUCVx/ElwU5l9mmj83zBYQ9mFgBWIt31XM9G60bHOhg1P+8Rs+4w5pN3yPV4UENCTHlPKcieZ3jfZ4oAUWmzhIe+FzBzbJ/zF9UqJQZc3QZHj87kaAn9cwyqKPkP/2eUqnXZh66XozjPMRYPX57IDKOg9p9Zeio7r7NVTV7r1BzR09C/Xm2Eeh+Tfuobqny+wayveGl26exr6GJP0hPKmW0dyOmXYAhkAefVdpzuvr0f2+lIfgXzo9CFYEkuzQT0/TTrDvmOLBwkJNLCJ2i6Urycxs5v2kmttQf0ktssbwUZ4AaxNTvObMtsOvNU7hmWr5weKei5RX97Io5+7KdR8bMGychTKQc06PQRP3tlkjXzMYifwWQlxpj9KfDF8535ecPyr+Vpvp8kbDOfOqzTDQsI=
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_38d36e6ce5c2_key -iv $encrypted_38d36e6ce5c2_iv
+    -in .travis/gpg.asc.enc -out .travis/gpg.asc -d
+deploy:
+  -
+    skip_cleanup: true
+    provider: script
+    script: ./deploy
+    on:
+      branch: travis-ci
+  -
+    skip_cleanup: true
+    provider: script
+    script: ./deploy
+    on:
+      tags: true
