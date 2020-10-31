@@ -6,7 +6,7 @@ import java.io.Closeable;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This interface provides event processing for Unlaunch events.
+ * This interface provides event processing for Unlaunch events including metrics, impressions and tracking events.
  *
  * @author umermansoor
  */

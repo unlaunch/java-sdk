@@ -39,7 +39,7 @@ public class OfflineUnlaunchClient implements UnlaunchClient {
 
     @Override
     public AccountDetails accountDetails() {
-        return null;
+        return new AccountDetails("client_is_in_offline_mode", "offine_mode", -1);
     }
 
     @Override

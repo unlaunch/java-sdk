@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <>This class is mutable and hence it is NOT Thread-safe.</>
  *
- * @author umermansoor
+ * @author umer mansoor
  */
 
 final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
@@ -28,8 +28,11 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private AccountDetails accountDetail = null;
     private long pollingInterval = 60;
     private TimeUnit pollingIntervalTimeUnit = TimeUnit.SECONDS;
-    private long eventFlushInterval = 60;
-    private TimeUnit eventFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private long metricsFlushInterval = 30;
+    private TimeUnit metricsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private long eventsFlushInterval = 60;
+    private TimeUnit eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private int eventsQueueSize = 500;
     private long impressionsForLiveTailIntervalInSeconds = 5;
     private String host = "http://api.unlaunch.io"; // TODO Change to https;
     private final String flagApiPath = "/api/v1/flags";
@@ -38,7 +41,10 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private  String yamlFeaturesFilePath;
 
     // To reduce load on server from aggressive settings
-    private static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS = 10;
+    public static int MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_EVENTS_QUEUE_SIZE = 500;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -68,17 +74,33 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         return this;
     }
 
+
     @Override
     public UnlaunchClientBuilder host(String host) {
-        logger.warn("setting Unlaunch host is dangerous - make sure you know what you are doing");
+        logger.warn("setting host manually is only for enterprise users or for testing.");
         this.host = host;
         return this;
     }
 
+
     @Override
-    public UnlaunchClientBuilder eventFlushInterval(long interval, TimeUnit unit) {
-        this.eventFlushInterval = interval;
-        this.eventFlushIntervalTimeUnit = unit;
+    public UnlaunchClientBuilder metricsFlushInterval(long interval, TimeUnit unit) {
+        this.metricsFlushInterval = interval;
+        this.metricsFlushIntervalTimeUnit = unit;
+        return this;
+    }
+
+
+    @Override
+    public UnlaunchClientBuilder eventsFlushInterval(long interval, TimeUnit unit) {
+        this.eventsFlushInterval = interval;
+        this.eventsFlushIntervalTimeUnit = unit;
+        return this;
+    }
+
+    @Override
+    public UnlaunchClientBuilder eventsQueueSize(int maxQueueSize) {
+        this.eventsQueueSize = maxQueueSize;
         return this;
     }
 
@@ -88,66 +110,35 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     }
 
     /**
+     * Builds and returns an new {@link UnlaunchClient}.
      *
      * @return
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      */
     public UnlaunchClient build() {
+        validateConfigurationParameters();
 
-        try {
-
-            if (!isOffline) { // if not offline, check for SDK key and host
-                if (Strings.isNullOrEmpty(sdkKey)) {
-                    // User didn't supply SDK key, try reading from environment variable
-                    String s = System.getenv(UnlaunchConstants.SDK_KEY_ENV_VARIABLE_NAME);
-                    if (Strings.isNullOrEmpty(s)) {
-                        throw new IllegalArgumentException("sdkKey cannot be null or empty. Must be supplied to the " +
-                                "builder or set as an environment variable.");
-                    } else {
-                        logger.info("Setting SDK Key read from environment variable");
-                        sdkKey = s;
-                    }
-                }
-
-                if (Strings.isNullOrEmpty(host)) {
-                    throw new IllegalArgumentException("hostname cannot be null or empty. Must point to a valid Unlaunch " +
-                            "Service host");
-                }
-            }
-
-            Preconditions.checkArgument(pollingInterval > 0, "Polling interval cannot be <= 0");
-            Preconditions.checkArgument(pollingIntervalTimeUnit != null, "Polling interval TimeUnit cannot be null");
-            Preconditions.checkArgument(eventFlushInterval > 0, "Event flush interval cannot be <= 0");
-            Preconditions.checkArgument(eventFlushIntervalTimeUnit != null, "Event flush TimeUnit cannot be null");
-
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalStateException(e);
-        }
+        UnlaunchClient client;
 
         if (this.isOffline) {
-
             if (yamlFeaturesFilePath  == null) {
-                return new OfflineUnlaunchClient();
+                client = new OfflineUnlaunchClient();
             } else {
-                return new OfflineUnlaunchClient(yamlFeaturesFilePath);
+                client = new OfflineUnlaunchClient(yamlFeaturesFilePath);
             }
-
         } else {
-            return createDefaultClient();
+            client = createDefaultClient();
         }
+
+        logger.info("client built with following parameters {}", getConfigurationAsPrintableString());
+        return client;
     }
 
     private UnlaunchClient createDefaultClient() {
         long pollingIntervalInSeconds =  pollingIntervalTimeUnit.toSeconds(pollingInterval);
         if (pollingIntervalInSeconds < MIN_POLL_INTERVAL_IN_SECONDS) {
             logger.warn("The pollingInterval must be equal than or greater than {} seconds. Setting it to that. ",
-                    MIN_POLL_INTERVAL_IN_SECONDS );
-        }
-
-        long eventFlushIntervalInSeconds = eventFlushIntervalTimeUnit.toSeconds(eventFlushInterval);
-        if (eventFlushInterval < MIN_POLL_INTERVAL_IN_SECONDS ) {
-            logger.warn("The eventFlushInterval must be equal than or greater than {} seconds. Setting it to that. ",
                     MIN_POLL_INTERVAL_IN_SECONDS );
         }
 
@@ -167,27 +158,29 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     "correct SDK Key. We'll retry again but this error  is usually not recoverable.");
         }
 
+        // This is currently not is use; we'll use this for event tracking
+        long eventFlushIntervalInSeconds = eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval);
         UnlaunchRestWrapper eventsApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, eventApiPath);
         EventHandler eventHandler = EventHandler.createGenericEventHandler("generic",
-                eventsApiRestClient, eventFlushIntervalInSeconds);
+                eventsApiRestClient, eventFlushIntervalInSeconds, eventsQueueSize);
 
         UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
         EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler("impression",
                 impressionApiRestClient, impressionsForLiveTailIntervalInSeconds, 100);
 
-        EventHandler flagInvocationMetricHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, 30,
-                TimeUnit.SECONDS);
+        EventHandler variationsCountEventHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, metricsFlushInterval,
+                metricsFlushIntervalTimeUnit);
 
         return  DefaultUnlaunchClient.create(
-                dataStore, eventHandler, flagInvocationMetricHandler, impressionsEventHandler,
+                dataStore, eventHandler, variationsCountEventHandler, impressionsEventHandler,
                 initialDownloadDoneLatch, downloadSuccessful,
                 isOffline, () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();
                     }
 
-                    if (flagInvocationMetricHandler != null) {
-                        flagInvocationMetricHandler.close();
+                    if (variationsCountEventHandler != null) {
+                        variationsCountEventHandler.close();
                     }
 
                     if (eventHandler != null) {
@@ -197,8 +190,56 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     if (impressionsEventHandler != null) {
                         impressionsEventHandler.close();
                     }
-
                     return true;
                 });
+    }
+
+    // This method will throw exception is errors are encountered
+    private void validateConfigurationParameters() {
+        try {
+            // if not offline, check for SDK key and host
+            if (!isOffline) {
+                if (Strings.isNullOrEmpty(sdkKey)) {
+                    // User didn't supply SDK key, try reading from environment variable
+                    String s = System.getenv(UnlaunchConstants.SDK_KEY_ENV_VARIABLE_NAME);
+                    if (Strings.isNullOrEmpty(s)) {
+                        throw new IllegalArgumentException("sdkKey cannot be null or empty. Must be supplied to the " +
+                                "builder or set as an environment variable.");
+                    } else {
+                        logger.info("Setting SDK Key read from environment variable");
+                        sdkKey = s;
+                    }
+                }
+
+                if (Strings.isNullOrEmpty(host)) {
+                    throw new IllegalArgumentException("hostname cannot be null or empty. Must point to a valid Unlaunch Service host");
+                }
+            }
+
+            Preconditions.checkArgument(pollingIntervalTimeUnit != null, "pollingIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(pollingIntervalTimeUnit.toSeconds(pollingInterval) >= MIN_POLL_INTERVAL_IN_SECONDS,
+                    "pollingInterval() must be great than " + MIN_POLL_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(metricsFlushIntervalTimeUnit != null, "metricsFlushIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) >= MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS,
+                    "metricsFlushInterval() must be great than " + MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(eventsFlushIntervalTimeUnit != null, "eventsFlushIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval) >= MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS,
+                    "eventsFlushInterval() must be great than " + MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(eventsQueueSize >= 500, "eventsQueue must be at least 500");
+
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String getConfigurationAsPrintableString() {
+        return "isOffline=" + isOffline +
+                ", pollingInterval (seconds) =" + pollingIntervalTimeUnit.toSeconds(pollingInterval) +
+                ", metricsFlushInterval (seconds) =" + metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) +
+                ", host='" + host + '\'' +
+                '}';
     }
 }

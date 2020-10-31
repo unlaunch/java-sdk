@@ -15,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Batched implementation of the {@link EventHandler}.
- * <p>
- * Incoming events are added to a blocking queue instead of being sent to the server immediately. There is a single
- * consumer thread that pulls events from the queue when the maximum batch size is reached, or a special 'flush'
- * event is encountered and sends them to the server.
  *
- * @author umermansoor
+ *<p>Incoming events are added to a blocking queue instead of being sent to the server immediately. There is a single
+ * consumer thread that pulls events from the queue when the maximum batch size is reached, or a special 'flush'
+ * event is encountered and sends them to the server.</p>
+ *
+ * @author umer mansoor
  */
 abstract class AbstractEventHandler implements EventHandler {
     private final BlockingQueue<Event> queue = new LinkedBlockingQueue<>();
@@ -46,7 +46,7 @@ abstract class AbstractEventHandler implements EventHandler {
         // This is done to avoid polling in the consumer thread and let it be blocked on BlockingQueue.take()
         // indefinitely.
         flushExecutor = Executors.newScheduledThreadPool(1,
-                new ThreadFactoryBuilder().setNameFormat("ul-eventhandler-" + name + "-flush").build());
+                new ThreadFactoryBuilder().setNameFormat("ul-evthndlr-" + name + "-flush").build());
         flushExecutor.scheduleWithFixedDelay(() -> {
             queue.offer(FLUSH_PILL_EVENT);
         }, flushIntervalInSeconds, flushIntervalInSeconds, TimeUnit.SECONDS);
@@ -57,7 +57,6 @@ abstract class AbstractEventHandler implements EventHandler {
         if (event == null || closed.get()) {
             return false;
         }
-
 
         try {
             queue.put(event);

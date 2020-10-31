@@ -40,13 +40,13 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     private DefaultUnlaunchClient (
             UnlaunchDataStore dataStore,
             EventHandler eventHandler,
-            EventHandler flagInvocationMetricHandler,
+            EventHandler variationsCountEventHandler,
             EventHandler impressionsEventHandler,
             CountDownLatch initialDownloadDoneLatch,
             AtomicBoolean downloadSuccessful,
             boolean isOffline,
             BooleanSupplier runCodeOnShutdown) {
-        this.flagInvocationMetricHandler = flagInvocationMetricHandler;
+        this.flagInvocationMetricHandler = variationsCountEventHandler;
         this.impressionsEventHandler = impressionsEventHandler;
         this.dataStore =  dataStore;
         this.initialDownloadDoneLatch = initialDownloadDoneLatch;
@@ -180,6 +180,11 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
 
     @Override
     public AccountDetails accountDetails() {
+        if (!isReady()) {
+            logger.error("The client isn't ready yet. You can call accountDetails() method when the client is ready. ");
+            return new AccountDetails("client_not_ready", "client_not_ready", -1);
+        }
+
         return new AccountDetails(dataStore.getProjectName(), dataStore.getEnvironmentName(),
                 dataStore.getAllFlags().size());
     }

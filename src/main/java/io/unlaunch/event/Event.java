@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * UnLaunch Event class.
+ * UnLaunch Event class. This represent generic events and can carry metrics, impressions or tracking events.
  *
- * @author umer
+ * @author umer mansoor
  */
 public class Event {
     private long createdTime; // milliseconds

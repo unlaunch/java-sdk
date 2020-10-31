@@ -11,8 +11,8 @@ import java.util.concurrent.TimeoutException;
  *
  * <p>Sample code to get you started:</p>
  *
- * <code>
- *     UnlaunchClient client = UnlaunchClient.create("your_sdk_key");
+ * <pre>
+ *     UnlaunchClient client = UnlaunchClient.create("your sdk key");
  *
  *     String variation = client.getVariation("flagKey", "userId123");
  *     if (variation == "on") {
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeoutException;
  *     }
  *
  *     client.shutdown();
- * </code>
+ * </pre>
  *
  *<p>This is the <b>server-side</b> SDK which means it will download all feature flags and associated data
  * upon initialization (and periodically based on settings.)</p>
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeoutException;
  * {@link UnlaunchClient#create(String)} or using the static {@link #builder()} method which returns
  * {@link UnlaunchClientBuilder} which can be used to customize the client.</p>
  *
- * @author umermansoor
+ * @author umer mansoor
  * @see <a href="https://unlaunch.io">https://unlaunch.io</a>
  */
 
@@ -74,9 +74,9 @@ public interface UnlaunchClient extends Cloneable {
     AccountDetails accountDetails();
 
     /**
-     *  Evaluates and returns the variation (variation key) for this feature. Variations are defined in the Unlaunch
-     *  web console at <a href="https://app.unlaunch.io">https://app.unlaunch.io</a>.
-     *  <p>This method returns "none" if:</p>
+     *  Evaluates and returns the variation (variation key) for this feature. Variations are defined using the Unlaunch
+     *  Console at <a href="https://app.unlaunch.io">https://app.unlaunch.io</a>.
+     *  <p>This method returns "control" if:</p>
      *  <ol>
      *      <li> The flag was not found.</li>
      *      <li> There was an exception evaluation the feature flag.</li>
@@ -88,7 +88,7 @@ public interface UnlaunchClient extends Cloneable {
      *                 may be null but 'Percentage rollout' will not work because it is used to determine bucketing.
      *                 If this is null and 'Percentge rollout' is enabled, we'll log exceptions in your code and also
      *                 in the Unlaunch web app.
-     * @return the evaluated variation or  "none" if there was an error.
+     * @return the evaluated variation or  "control" if there was an error.
      */
     String getVariation(String flagKey, String identity);
 
@@ -99,14 +99,24 @@ public interface UnlaunchClient extends Cloneable {
      *  To understand attributes, suppose you have defined a feature flag with targeting rules to return certain
      *  variation based on user's country e.g.
      *
-     *  <code>
-     *      if user's country is "USA" AND device is"handheld"
+     *  <pre>
+     *      if country is "USA" AND subscriber is true
      *          return "on"
      *      otherwise
      *          return "off"
-     *  </code>
+     *  </pre>
      *
-     *  In this example, <em>country</em> will be <em>device</em> are attributes that must be passed in.
+     *  In this example, <em>country</em> will be <em>subscriber</em> are attributes that must be passed in. If the
+     *  user is from USA and is subscriber, the "on" variation will be returned. Otherwise, "off".
+     *
+     *  <pre>
+     *  client.getFeature(
+     *     "show_bonus_pack",
+     *     userId,
+     *     UnlaunchAttribute.newString("country", "USA"),
+     *     UnlaunchAttribute.newBoolean("sbscriber", true)
+     *  );
+     *  </pre>
      *
      * <p>This method doesn't throw any exceptions nor does it return <code>null</code> value</p>
      * @param flagKey the feature flag you want to evaluate.
@@ -115,14 +125,22 @@ public interface UnlaunchClient extends Cloneable {
      *      *                 If this is null and 'Percentge rollout' is enabled, we'll log exceptions in your code and also
      *      *                 in the Unlaunch web app.
      * @param attributes attributes to apply when evaluating target rules.
-     * @return the evaluated variation or  "none" if there was an error.
+     * @return the evaluated variation or  "control" if there was an error.
      */
     String getVariation(String flagKey, String identity, UnlaunchAttribute ... attributes);
 
     /**
      *  Same as {@link #getVariation(String, String)} but returns a {@link UnlaunchFeature} object that contains the
      *  evaluated variation (variation key) and any configuration (key, value properties or JSON) associated with the
-     *  evaluated variation, defined in the Unlaunch web console. 
+     *  evaluated variation, defined in the Unlaunch web console.
+     *
+     *  For example, to get dynamic configuration associated with a variation, you can:
+     *  <pre>
+     *      UnlaunchFeature feature = client.getFeature("new_login_ui", userId);
+     *      String colorHexCode = feature.getVariationConfig().getString("login_button_color", "#cd5c5c");
+     *
+     *      renderButton(colorHexCode);
+     *  </pre>
      *  
      * @param flagKey the feature flag you want to evaluate.
      * @param identity unique id of your user or a unique identifier such as request or session id, email, etc. It
@@ -139,14 +157,15 @@ public interface UnlaunchClient extends Cloneable {
      *  To understand attributes, suppose you have defined a feature flag with targeting rules to return certain
      *  variation based on user's country e.g.
      *
-     *  <code>
-     *      if user's country is "USA" AND device is"handheld"
+     *  <pre>
+     *      if user's country is "USA" AND device is "handheld"
      *          return "on"
      *      otherwise
      *          return "off"
-     *  </code>
+     *  </pre>
      *
      *  In this example, <em>country</em> will be <em>device</em> are attributes that must be passed in.
+     *
      * @param flagKey the feature flag you want to evaluate.
      * @param identity unique id of your user or a unique identifier such as request or session id, email, etc. It
      *    may be null but 'Percentage rollout' will not work because it is used to determine bucketing.

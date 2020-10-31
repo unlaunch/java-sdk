@@ -13,8 +13,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Event handler to aggregate variation count stats and send one aggregated event periodically instead of blasting
- * the backend with too many events.
+ * Specialized event handler to aggregate variation count stats and send one aggregated event periodically instead of
+ * blasting the backend with too many events.
  *
  * @author umer
  */

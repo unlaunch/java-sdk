@@ -1,6 +1,8 @@
 package io.unlaunch.event;
 
 import io.unlaunch.utils.UnlaunchConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -20,8 +22,9 @@ public class Impression extends Event {
     private static String machineIp = "Not available";
     private static String machineName = "Not available";
 
-    static{
-    
+    private static final Logger logger = LoggerFactory.getLogger(Impression.class);
+
+    static {
         try {
             InetAddress inetAddress = InetAddress.getLocalHost();
             machineName = inetAddress.getHostName();
@@ -30,13 +33,13 @@ public class Impression extends Event {
             while (netInterfaces.hasMoreElements()) {
                 for (InterfaceAddress netAddress : netInterfaces.nextElement().getInterfaceAddresses()) {
                     if (netAddress.getAddress().isSiteLocalAddress()) {
-                        machineIp = netAddress.getAddress().getHostAddress();
+                        machineIp = netAddress.getAddress().getHostAddress(); //TODO: Remove don't need locl lP. Useless
                     }
                 }
             }
 
         } catch (Exception e) {
-
+            logger.error("error getting machine name or IP address");
         }
     }
     
