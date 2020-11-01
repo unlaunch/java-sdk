@@ -19,8 +19,7 @@ final class GenericEventHandler extends AbstractEventHandler {
 
     GenericEventHandler(String name, UnlaunchRestWrapper restClientForEventsApi, long eventFlushIntervalInSeconds,
                         int maxBufferSize) {
-        super(name, restClientForEventsApi, eventFlushIntervalInSeconds,
-                maxBufferSize);
+        super(name, restClientForEventsApi, eventFlushIntervalInSeconds, maxBufferSize);
     }
 
 }

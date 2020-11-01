@@ -13,13 +13,12 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Event handler to aggregate variation count stats and send one aggregated event periodically instead of blasting
- * the backend with too many events.
+ * Specialized event handler to aggregate variation count stats and send one aggregated event periodically instead of
+ * blasting the backend with too many events.
  *
  * @author umer
  */
 
-// TODO: extend this from AbstractEventHander and get rid of code
 final class CountAggregatorEventHandler implements EventHandler, Closeable {
 
     // All operations which modify the map must be synchronized.
@@ -34,7 +33,7 @@ final class CountAggregatorEventHandler implements EventHandler, Closeable {
         Preconditions.checkArgument(runFrequencyInMillis > 0);
         executorService.scheduleAtFixedRate(this::run, runFrequencyInMillis, runFrequencyInMillis, TimeUnit.MILLISECONDS);
         this.eventHandler = eventHandler;
-        logger.info("Variation count metrics will be sent every {} millseconds", runFrequencyInMillis);
+        logger.info("Variation count metrics will be aggregated every {} millseconds", runFrequencyInMillis);
     }
 
 
@@ -77,6 +76,7 @@ final class CountAggregatorEventHandler implements EventHandler, Closeable {
 
                 try {
                     eventHandler.handle(e);
+                    eventHandler.flush(); // Flush because we already waited to aggregate events
                 } catch (RuntimeException ex) {
                     logger.error("An error occured sending event counts to the service {}", ex.getMessage());
                 }

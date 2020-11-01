@@ -14,15 +14,82 @@ public interface UnlaunchClientBuilder {
 
     UnlaunchClientBuilder sdkKey(String sdkKey);
 
+    /**
+     * This is intended for testing purposes. Starts the client is offline mode. All flag evaluations will return
+     * <pre>control</pre> variation and no data is sent to server.
+     * <p>For more information <a href="https://docs.unlaunch.io/docs/sdks/java-sdk#offline-mode">read this</a>.</p>
+     * @return @return {@link UnlaunchClientBuilder}
+     */
     UnlaunchClientBuilder offlineMode();
 
+    /**
+     * This is intended for testing, including unit testing. This allows you to pass a YAML file containing feature
+     * flags and the variations to return when they are evaluated. You can also control dynamic configuration and
+     * specify which values to return.
+     * <p>For more information and a template,<a href="https://docs.unlaunch.io/docs/sdks/java-sdk#offline-mode">read this</a></p>
+     * @param yamlFeaturesFilePath
+     * @return
+     */
     UnlaunchClientBuilder offlineModeWithLocalFeatures(String yamlFeaturesFilePath);
 
+    /**
+     * This is for controlling how often the SDK download flags from the servers if the data has changed.
+     * <p>The default interval is 60 seconds for production, and 20 seconds for non-production environments.</p>
+     * @param interval
+     * @param unit
+     * @return {@link UnlaunchClientBuilder}
+     */
     UnlaunchClientBuilder pollingInterval(long interval, TimeUnit unit);
 
+    /**
+     * Unlaunch server to connect to for downloading feature flags, submitting events, etc.
+     * <p>Use this if you are running Unlaunch backend service on-premise or are enterprise customer. The default
+     * value is https://api.unlaunch.io</p>
+     * @param host - Unlaunch backend service to connect to
+     * @return  {@link UnlaunchClientBuilder}
+     */
     UnlaunchClientBuilder host(String host);
 
-    UnlaunchClientBuilder eventFlushInterval(long interval, TimeUnit unit);
+    /**
+     * The SDK periodically sends events like metrics and diagnostics data to our servers. This controls how
+     * frequently this data is sent.
+     * <p>When the SDK is shutdown using the {@link UnlaunchClient#shutdown()}, all buffered data is automatically
+     * sent.</p>
+     * <p>The default value is 30 seconds for production and 10 seconds for non-production environments.</p>
+     * @param interval
+     * @param unit
+     * @return {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder metricsFlushInterval(long interval, TimeUnit unit);
+
+    /**
+     * This controls how frequently tracking events are sent to the server.
+     * <p>When the SDK is shutdown using the {@link UnlaunchClient#shutdown()}, all buffered data is automatically
+     * sent.</p>
+     * <p>The default value is 60 seconds for production and 15 seconds for non-production environments.</p>
+     * @param interval
+     * @param unit
+     * @return {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder eventsFlushInterval(long interval, TimeUnit unit);
+
+    /**
+     * The maximum number of events to keep in memory.
+     * <p>Events are sent to the server when either the  queue size  or events flush interval is reached, whichever
+     * comes first.  </p>
+     * @param maxQueueSize
+     * @return  {@link UnlaunchClientBuilder}
+     */
+     UnlaunchClientBuilder eventsQueueSize(int maxQueueSize);
+
+    /**
+     * The maximum number of metrics (impressions) to keep in memory.
+     * <p>Metrics are sent to the server when either the  queue size  or the flush interval is reached, whichever
+     * comes first. </p>
+     * @param maxQueueSize
+     * @return  {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder metricsQueueSize(int maxQueueSize);
 
     UnlaunchClientBuilder enableLazyLoading();
 

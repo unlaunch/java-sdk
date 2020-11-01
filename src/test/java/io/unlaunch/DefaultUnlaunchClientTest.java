@@ -49,7 +49,7 @@ public class DefaultUnlaunchClientTest {
     @Test
     public void testConstruction() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
                  Boolean.TRUE::booleanValue);
 
         Assert.assertNotNull(client);
@@ -59,7 +59,7 @@ public class DefaultUnlaunchClientTest {
     public void tesWhenFlagIsDisabledAndOffVariationIsServed() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
                 eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
-                isOffline, Boolean.TRUE::booleanValue);
+                Boolean.TRUE::booleanValue);
 
         final String flagKey = "flag123";
         FeatureFlag flag  = Mockito.mock(FeatureFlag.class);
@@ -78,7 +78,7 @@ public class DefaultUnlaunchClientTest {
     public void testDefaultValueIsReturnedWhenTheFlagIsNotFound() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
                 eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
-                isOffline, Boolean.TRUE::booleanValue);
+                Boolean.TRUE::booleanValue);
 
         when(unlaunchHttpDataStore.getFlag(any())).thenReturn(null);
 
@@ -91,7 +91,7 @@ public class DefaultUnlaunchClientTest {
     public void testFallbackValueIsReturnedWhenDataStoreThrowsAnException() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
                 eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
-                isOffline, Boolean.TRUE::booleanValue);
+                Boolean.TRUE::booleanValue);
 
         when(unlaunchHttpDataStore.getFlag(any())).thenThrow(new RuntimeException());
 
@@ -102,7 +102,7 @@ public class DefaultUnlaunchClientTest {
     @Test
     public void testFlagWhenFlagIsDisabledAndOffVariationIsServed() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
                 Boolean.TRUE::booleanValue);
 
         final String flagKey = "flag123";
@@ -126,7 +126,7 @@ public class DefaultUnlaunchClientTest {
         final CountDownLatch latchNeverCloses = new CountDownLatch(1);
 
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchNeverCloses, atomicBoolean, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchNeverCloses, atomicBoolean,
                 Boolean.TRUE::booleanValue);
 
         try {
@@ -143,7 +143,7 @@ public class DefaultUnlaunchClientTest {
         final CountDownLatch latchThatCloses = new CountDownLatch(1);
 
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, atomicBoolean, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, atomicBoolean,
                 Boolean.TRUE::booleanValue);
 
         latchThatCloses.countDown();
@@ -159,7 +159,7 @@ public class DefaultUnlaunchClientTest {
     public void testClientReturnsControlVariationAfterShutdown() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
                 eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
-                isOffline, Boolean.TRUE::booleanValue);
+                Boolean.TRUE::booleanValue);
 
         final String flagKey = "flag123";
         FeatureFlag flag  = Mockito.mock(FeatureFlag.class);
@@ -190,7 +190,7 @@ public class DefaultUnlaunchClientTest {
         final AtomicBoolean downloadSuccess = new AtomicBoolean();
 
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, downloadSuccess, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, downloadSuccess,
                 Boolean.TRUE::booleanValue);
 
         latchThatCloses.countDown();
@@ -205,7 +205,7 @@ public class DefaultUnlaunchClientTest {
         final AtomicBoolean downloadSuccess = new AtomicBoolean();
 
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, downloadSuccess, isOffline,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, latchThatCloses, downloadSuccess,
                 Boolean.TRUE::booleanValue);
 
         latchThatCloses.countDown();
