@@ -19,26 +19,40 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <>This class is mutable and hence it is NOT Thread-safe.</>
  *
- * @author umermansoor
+ * @author umer mansoor
  */
 
 final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
+
     private String sdkKey;
     private boolean isOffline;
-    private AccountDetails accountDetail = null;
     private long pollingInterval = 60;
     private TimeUnit pollingIntervalTimeUnit = TimeUnit.SECONDS;
-    private long eventFlushInterval = 60;
-    private TimeUnit eventFlushIntervalTimeUnit = TimeUnit.SECONDS;
-    private long impressionsForLiveTailIntervalInSeconds = 5;
-    private String host = "http://api.unlaunch.io"; // TODO Change to https;
+    private long metricsFlushInterval = 30;
+    private TimeUnit metricsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private int metricsQueueSize = 100;
+    private long eventsFlushInterval = 60;
+    private TimeUnit eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private int eventsQueueSize = 500;
+    private String host = "https://api.unlaunch.io";
+    private  String yamlFeaturesFilePath;
+
+    // These are internal flags to track if values are updated by the user. If so,
+    // don't change these by environments e.g. Pre-production vs Production.
+    private boolean pollingIntervalUpdatedByUser;
+    private boolean metricsFlushIntervalUpdatedByUser;
+    private boolean eventsFlushIntervalUpdatedByUser;
+
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
-    private  String yamlFeaturesFilePath;
 
     // To reduce load on server from aggressive settings
-    private static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS = 15;
+    public static int MIN_EVENTS_QUEUE_SIZE = 500;
+    public static int MIN_METRICS_QUEUE_SIZE = 100;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -65,20 +79,45 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClientBuilder pollingInterval(long interval, TimeUnit unit) {
         this.pollingInterval = interval;
         this.pollingIntervalTimeUnit = unit;
+        this.pollingIntervalUpdatedByUser = true;
         return this;
     }
 
+
     @Override
     public UnlaunchClientBuilder host(String host) {
-        logger.warn("setting Unlaunch host is dangerous - make sure you know what you are doing");
+        logger.warn("setting host manually is only for enterprise users or for testing.");
         this.host = host;
         return this;
     }
 
+
     @Override
-    public UnlaunchClientBuilder eventFlushInterval(long interval, TimeUnit unit) {
-        this.eventFlushInterval = interval;
-        this.eventFlushIntervalTimeUnit = unit;
+    public UnlaunchClientBuilder metricsFlushInterval(long interval, TimeUnit unit) {
+        this.metricsFlushInterval = interval;
+        this.metricsFlushIntervalTimeUnit = unit;
+        this.metricsFlushIntervalUpdatedByUser = true;
+        return this;
+    }
+
+
+    @Override
+    public UnlaunchClientBuilder eventsFlushInterval(long interval, TimeUnit unit) {
+        this.eventsFlushInterval = interval;
+        this.eventsFlushIntervalTimeUnit = unit;
+        this.eventsFlushIntervalUpdatedByUser = true;
+        return this;
+    }
+
+    @Override
+    public UnlaunchClientBuilder eventsQueueSize(int maxQueueSize) {
+        this.eventsQueueSize = maxQueueSize;
+        return this;
+    }
+
+    @Override
+    public UnlaunchClientBuilder metricsQueueSize(int maxQueueSize) {
+        this.metricsQueueSize = maxQueueSize;
         return this;
     }
 
@@ -88,16 +127,131 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     }
 
     /**
+     * Builds and returns an new {@link UnlaunchClient}.
      *
      * @return
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      */
     public UnlaunchClient build() {
+        if (sdkKey != null && !sdkKey.isEmpty()) {
+            if (!sdkKey.startsWith("prod")) {
+                loadPreProductionDefaults();
+            }
+        }
 
+        validateConfigurationParameters();
+
+        UnlaunchClient client;
+        if (this.isOffline) {
+            if (yamlFeaturesFilePath  == null) {
+                client = new OfflineUnlaunchClient();
+            } else {
+                client = new OfflineUnlaunchClient(yamlFeaturesFilePath);
+            }
+        } else {
+            client = createDefaultClient();
+        }
+
+        logger.info("client built with following parameters {}", getConfigurationAsPrintableString());
+        return client;
+    }
+
+    private UnlaunchClient createDefaultClient() {
+        long pollingIntervalInSeconds =  pollingIntervalTimeUnit.toSeconds(pollingInterval);
+        if (pollingIntervalInSeconds < MIN_POLL_INTERVAL_IN_SECONDS) {
+            logger.warn("The pollingInterval must be equal than or greater than {} seconds. Setting it to that. ",
+                    MIN_POLL_INTERVAL_IN_SECONDS );
+        }
+
+        UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
+        final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
+         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
+        RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
+                restWrapperForFlagApi,
+                initialDownloadDoneLatch,
+                downloadSuccessful,
+                pollingIntervalInSeconds);
+
+        // Try to make sure there are no errors or abandon object construction
+        UnlaunchDataStore dataStore = refreshableDataStoreProvider.getNoOpDataStore();
         try {
+            dataStore = refreshableDataStoreProvider.getDataStore();
+        } catch (Exception e) {
+            logger.error("Unable to download features and init. Make sure you're using the " +
+                    "correct SDK Key. We'll retry again but this error  is usually not recoverable.");
+        }
 
-            if (!isOffline) { // if not offline, check for SDK key and host
+        // This is currently not is use; we'll use this for event tracking
+        long eventFlushIntervalInSeconds = eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval);
+        UnlaunchRestWrapper eventsApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, eventApiPath);
+        EventHandler eventHandler = EventHandler.createGenericEventHandler(
+                "generic",
+                eventsApiRestClient,
+                eventFlushIntervalInSeconds,
+                eventsQueueSize);
+
+        UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
+        EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler(
+                "metrics",
+                impressionApiRestClient,
+                metricsFlushInterval,
+                metricsQueueSize);
+
+        EventHandler variationsCountEventHandler = EventHandler.createCountAggregatorEventHandler(
+                eventHandler,
+                metricsFlushInterval,
+                metricsFlushIntervalTimeUnit
+        );
+
+        return  DefaultUnlaunchClient.create(
+                dataStore, eventHandler, variationsCountEventHandler, impressionsEventHandler,
+                initialDownloadDoneLatch, downloadSuccessful,
+                () -> {
+                    if (refreshableDataStoreProvider != null) {
+                        refreshableDataStoreProvider.close();
+                    }
+
+                    if (variationsCountEventHandler != null) {
+                        variationsCountEventHandler.close();
+                    }
+
+                    if (eventHandler != null) {
+                        eventHandler.close();
+                    }
+
+                    if (impressionsEventHandler != null) {
+                        impressionsEventHandler.close();
+                    }
+                    return true;
+                });
+    }
+
+    /**
+     * On Pre-production environments which are mostly for testing, set thresholds to their mininum values.
+     */
+    private void loadPreProductionDefaults() {
+        if (!this.pollingIntervalUpdatedByUser) {
+            this.pollingInterval = MIN_POLL_INTERVAL_IN_SECONDS;
+            this.pollingIntervalTimeUnit = TimeUnit.SECONDS;
+        }
+
+        if (!this.eventsFlushIntervalUpdatedByUser) {
+            this.eventsFlushInterval = MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS;
+            this.eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+        }
+
+        if (!this.metricsFlushIntervalUpdatedByUser) {
+            this.metricsFlushInterval = MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS;
+            this.metricsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+        }
+    }
+
+    // This method will throw exception is errors are encountered
+    private void validateConfigurationParameters() {
+        try {
+            // if not offline, check for SDK key and host
+            if (!isOffline) {
                 if (Strings.isNullOrEmpty(sdkKey)) {
                     // User didn't supply SDK key, try reading from environment variable
                     String s = System.getenv(UnlaunchConstants.SDK_KEY_ENV_VARIABLE_NAME);
@@ -111,94 +265,38 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                 }
 
                 if (Strings.isNullOrEmpty(host)) {
-                    throw new IllegalArgumentException("hostname cannot be null or empty. Must point to a valid Unlaunch " +
-                            "Service host");
+                    throw new IllegalArgumentException("hostname cannot be null or empty. Must point to a valid Unlaunch Service host");
                 }
             }
 
-            Preconditions.checkArgument(pollingInterval > 0, "Polling interval cannot be <= 0");
-            Preconditions.checkArgument(pollingIntervalTimeUnit != null, "Polling interval TimeUnit cannot be null");
-            Preconditions.checkArgument(eventFlushInterval > 0, "Event flush interval cannot be <= 0");
-            Preconditions.checkArgument(eventFlushIntervalTimeUnit != null, "Event flush TimeUnit cannot be null");
+            Preconditions.checkArgument(pollingIntervalTimeUnit != null, "pollingIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(pollingIntervalTimeUnit.toSeconds(pollingInterval) >= MIN_POLL_INTERVAL_IN_SECONDS,
+                    "pollingInterval() must be great than " + MIN_POLL_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(metricsFlushIntervalTimeUnit != null, "metricsFlushIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) >= MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS,
+                    "metricsFlushInterval() must be great than " + MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(eventsFlushIntervalTimeUnit != null, "eventsFlushIntervalTimeUnit cannot be null");
+            Preconditions.checkArgument(eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval) >= MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS,
+                    "eventsFlushInterval() must be great than " + MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(eventsQueueSize >= MIN_EVENTS_QUEUE_SIZE, "eventsQueue must be at least 500");
+            Preconditions.checkArgument(metricsQueueSize >= MIN_METRICS_QUEUE_SIZE, "eventsQueue must be at least 100");
 
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new IllegalStateException(e);
         }
-
-        if (this.isOffline) {
-
-            if (yamlFeaturesFilePath  == null) {
-                return new OfflineUnlaunchClient();
-            } else {
-                return new OfflineUnlaunchClient(yamlFeaturesFilePath);
-            }
-
-        } else {
-            return createDefaultClient();
-        }
     }
 
-    private UnlaunchClient createDefaultClient() {
-        long pollingIntervalInSeconds =  pollingIntervalTimeUnit.toSeconds(pollingInterval);
-        if (pollingIntervalInSeconds < MIN_POLL_INTERVAL_IN_SECONDS) {
-            logger.warn("The pollingInterval must be equal than or greater than {} seconds. Setting it to that. ",
-                    MIN_POLL_INTERVAL_IN_SECONDS );
-        }
-
-        long eventFlushIntervalInSeconds = eventFlushIntervalTimeUnit.toSeconds(eventFlushInterval);
-        if (eventFlushInterval < MIN_POLL_INTERVAL_IN_SECONDS ) {
-            logger.warn("The eventFlushInterval must be equal than or greater than {} seconds. Setting it to that. ",
-                    MIN_POLL_INTERVAL_IN_SECONDS );
-        }
-
-        UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
-        final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
-         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
-        RefreshableDataStoreProvider refreshableDataStoreProvider =
-                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, downloadSuccessful,
-                        pollingIntervalInSeconds);
-
-        // Try to make sure there are no errors or abandon object construction
-        UnlaunchDataStore dataStore = refreshableDataStoreProvider.getNoOpDataStore();
-        try {
-            dataStore = refreshableDataStoreProvider.getDataStore();
-        } catch (Exception e) {
-            logger.error("Unable to download features and init. Make sure you're using the " +
-                    "correct SDK Key. We'll retry again but this error  is usually not recoverable.");
-        }
-
-        UnlaunchRestWrapper eventsApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, eventApiPath);
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("generic",
-                eventsApiRestClient, eventFlushIntervalInSeconds);
-
-        UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
-        EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler("impression",
-                impressionApiRestClient, impressionsForLiveTailIntervalInSeconds, 100);
-
-        EventHandler flagInvocationMetricHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, 30,
-                TimeUnit.SECONDS);
-
-        return  DefaultUnlaunchClient.create(
-                dataStore, eventHandler, flagInvocationMetricHandler, impressionsEventHandler,
-                initialDownloadDoneLatch, downloadSuccessful,
-                isOffline, () -> {
-                    if (refreshableDataStoreProvider != null) {
-                        refreshableDataStoreProvider.close();
-                    }
-
-                    if (flagInvocationMetricHandler != null) {
-                        flagInvocationMetricHandler.close();
-                    }
-
-                    if (eventHandler != null) {
-                        eventHandler.close();
-                    }
-
-                    if (impressionsEventHandler != null) {
-                        impressionsEventHandler.close();
-                    }
-
-                    return true;
-                });
+    private String getConfigurationAsPrintableString() {
+        return "isOffline=" + isOffline +
+                ", pollingInterval (seconds) =" + pollingIntervalTimeUnit.toSeconds(pollingInterval) +
+                ", metricsFlushInterval (seconds) =" + metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) +
+                ", metricsQueueSize = " + metricsQueueSize +
+                ", eventsFlushInterval (seconds) = " + eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval) +
+                ", eventsQueueSize = " + eventsQueueSize +
+                ", host='" + host + '\'' +
+                '}';
     }
 }

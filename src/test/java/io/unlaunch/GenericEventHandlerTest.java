@@ -70,14 +70,14 @@ public class GenericEventHandlerTest {
     public void testEventsAreSentWhenMaxBufferSizeIsReached() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
 
-        final int bufferSize = 10;
+        final int bufferSize = 3;
         EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,
                 Long.MAX_VALUE,
                 bufferSize);
 
         int count = 0;
 
-        while (count++ <= bufferSize) {
+        while (count++ < bufferSize) {
             eventHandler.handle(new Event("blah", ""));
         }
 
