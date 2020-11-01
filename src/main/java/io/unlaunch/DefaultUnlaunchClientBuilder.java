@@ -23,28 +23,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 
 final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
+
     private String sdkKey;
     private boolean isOffline;
-    private AccountDetails accountDetail = null;
     private long pollingInterval = 60;
     private TimeUnit pollingIntervalTimeUnit = TimeUnit.SECONDS;
     private long metricsFlushInterval = 30;
     private TimeUnit metricsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+    private int metricsQueueSize = 100;
     private long eventsFlushInterval = 60;
     private TimeUnit eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
     private int eventsQueueSize = 500;
-    private long impressionsForLiveTailIntervalInSeconds = 5;
-    private String host = "http://api.unlaunch.io"; // TODO Change to https;
+    private String host = "https://api.unlaunch.io";
+    private  String yamlFeaturesFilePath;
+
+    // These are internal flags to track if values are updated by the user. If so,
+    // don't change these by environments e.g. Pre-production vs Production.
+    private boolean pollingIntervalUpdatedByUser;
+    private boolean metricsFlushIntervalUpdatedByUser;
+    private boolean eventsFlushIntervalUpdatedByUser;
+
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
-    private  String yamlFeaturesFilePath;
 
     // To reduce load on server from aggressive settings
     public static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
-    public static int MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS = 10;
+    public static int MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS = 15;
     public static int MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS = 15;
     public static int MIN_EVENTS_QUEUE_SIZE = 500;
+    public static int MIN_METRICS_QUEUE_SIZE = 100;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -71,6 +79,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClientBuilder pollingInterval(long interval, TimeUnit unit) {
         this.pollingInterval = interval;
         this.pollingIntervalTimeUnit = unit;
+        this.pollingIntervalUpdatedByUser = true;
         return this;
     }
 
@@ -87,6 +96,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClientBuilder metricsFlushInterval(long interval, TimeUnit unit) {
         this.metricsFlushInterval = interval;
         this.metricsFlushIntervalTimeUnit = unit;
+        this.metricsFlushIntervalUpdatedByUser = true;
         return this;
     }
 
@@ -95,12 +105,19 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClientBuilder eventsFlushInterval(long interval, TimeUnit unit) {
         this.eventsFlushInterval = interval;
         this.eventsFlushIntervalTimeUnit = unit;
+        this.eventsFlushIntervalUpdatedByUser = true;
         return this;
     }
 
     @Override
     public UnlaunchClientBuilder eventsQueueSize(int maxQueueSize) {
         this.eventsQueueSize = maxQueueSize;
+        return this;
+    }
+
+    @Override
+    public UnlaunchClientBuilder metricsQueueSize(int maxQueueSize) {
+        this.metricsQueueSize = maxQueueSize;
         return this;
     }
 
@@ -117,10 +134,15 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
      * @throws IllegalArgumentException
      */
     public UnlaunchClient build() {
+        if (sdkKey != null && !sdkKey.isEmpty()) {
+            if (!sdkKey.startsWith("prod")) {
+                loadPreProductionDefaults();
+            }
+        }
+
         validateConfigurationParameters();
 
         UnlaunchClient client;
-
         if (this.isOffline) {
             if (yamlFeaturesFilePath  == null) {
                 client = new OfflineUnlaunchClient();
@@ -145,9 +167,11 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
         final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
          final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
-        RefreshableDataStoreProvider refreshableDataStoreProvider =
-                new RefreshableDataStoreProvider(restWrapperForFlagApi, initialDownloadDoneLatch, downloadSuccessful,
-                        pollingIntervalInSeconds);
+        RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
+                restWrapperForFlagApi,
+                initialDownloadDoneLatch,
+                downloadSuccessful,
+                pollingIntervalInSeconds);
 
         // Try to make sure there are no errors or abandon object construction
         UnlaunchDataStore dataStore = refreshableDataStoreProvider.getNoOpDataStore();
@@ -161,20 +185,29 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         // This is currently not is use; we'll use this for event tracking
         long eventFlushIntervalInSeconds = eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval);
         UnlaunchRestWrapper eventsApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, eventApiPath);
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("generic",
-                eventsApiRestClient, eventFlushIntervalInSeconds, eventsQueueSize);
+        EventHandler eventHandler = EventHandler.createGenericEventHandler(
+                "generic",
+                eventsApiRestClient,
+                eventFlushIntervalInSeconds,
+                eventsQueueSize);
 
         UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
-        EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler("impression",
-                impressionApiRestClient, impressionsForLiveTailIntervalInSeconds, 100);
+        EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler(
+                "metrics",
+                impressionApiRestClient,
+                metricsFlushInterval,
+                metricsQueueSize);
 
-        EventHandler variationsCountEventHandler = EventHandler.createCountAggregatorEventHandler(eventHandler, metricsFlushInterval,
-                metricsFlushIntervalTimeUnit);
+        EventHandler variationsCountEventHandler = EventHandler.createCountAggregatorEventHandler(
+                eventHandler,
+                metricsFlushInterval,
+                metricsFlushIntervalTimeUnit
+        );
 
         return  DefaultUnlaunchClient.create(
                 dataStore, eventHandler, variationsCountEventHandler, impressionsEventHandler,
                 initialDownloadDoneLatch, downloadSuccessful,
-                isOffline, () -> {
+                () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();
                     }
@@ -192,6 +225,26 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     }
                     return true;
                 });
+    }
+
+    /**
+     * On Pre-production environments which are mostly for testing, set thresholds to their mininum values.
+     */
+    private void loadPreProductionDefaults() {
+        if (!this.pollingIntervalUpdatedByUser) {
+            this.pollingInterval = MIN_POLL_INTERVAL_IN_SECONDS;
+            this.pollingIntervalTimeUnit = TimeUnit.SECONDS;
+        }
+
+        if (!this.eventsFlushIntervalUpdatedByUser) {
+            this.eventsFlushInterval = MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS;
+            this.eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+        }
+
+        if (!this.metricsFlushIntervalUpdatedByUser) {
+            this.metricsFlushInterval = MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS;
+            this.metricsFlushIntervalTimeUnit = TimeUnit.SECONDS;
+        }
     }
 
     // This method will throw exception is errors are encountered
@@ -228,7 +281,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             Preconditions.checkArgument(eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval) >= MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS,
                     "eventsFlushInterval() must be great than " + MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS);
 
-            Preconditions.checkArgument(eventsQueueSize >= 500, "eventsQueue must be at least 500");
+            Preconditions.checkArgument(eventsQueueSize >= MIN_EVENTS_QUEUE_SIZE, "eventsQueue must be at least 500");
+            Preconditions.checkArgument(metricsQueueSize >= MIN_METRICS_QUEUE_SIZE, "eventsQueue must be at least 100");
 
         } catch (IllegalArgumentException | NullPointerException e) {
             throw new IllegalStateException(e);
@@ -239,6 +293,9 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         return "isOffline=" + isOffline +
                 ", pollingInterval (seconds) =" + pollingIntervalTimeUnit.toSeconds(pollingInterval) +
                 ", metricsFlushInterval (seconds) =" + metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) +
+                ", metricsQueueSize = " + metricsQueueSize +
+                ", eventsFlushInterval (seconds) = " + eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval) +
+                ", eventsQueueSize = " + eventsQueueSize +
                 ", host='" + host + '\'' +
                 '}';
     }

@@ -82,6 +82,15 @@ public interface UnlaunchClientBuilder {
      */
      UnlaunchClientBuilder eventsQueueSize(int maxQueueSize);
 
+    /**
+     * The maximum number of metrics (impressions) to keep in memory.
+     * <p>Metrics are sent to the server when either the  queue size  or the flush interval is reached, whichever
+     * comes first. </p>
+     * @param maxQueueSize
+     * @return  {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder metricsQueueSize(int maxQueueSize);
+
     UnlaunchClientBuilder enableLazyLoading();
 
 }

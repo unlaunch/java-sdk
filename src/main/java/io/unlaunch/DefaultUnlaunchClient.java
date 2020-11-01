@@ -44,7 +44,6 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             EventHandler impressionsEventHandler,
             CountDownLatch initialDownloadDoneLatch,
             AtomicBoolean downloadSuccessful,
-            boolean isOffline,
             BooleanSupplier runCodeOnShutdown) {
         this.flagInvocationMetricHandler = variationsCountEventHandler;
         this.impressionsEventHandler = impressionsEventHandler;
@@ -52,14 +51,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         this.initialDownloadDoneLatch = initialDownloadDoneLatch;
         this.downloadSuccessful = downloadSuccessful;
         this.runCodeOnShutdown = runCodeOnShutdown;
-        if (!isOffline) {
-            this.defaultEventHandler = eventHandler;
-
-        } else {
-            // TODO: What about refreshableDataStoreProvider not being null? It will still Refresh in the background.
-            //  Need a different (offline) instance?
-            defaultEventHandler = null; // TODO: I don't understand this logic (UM). Alsp track() method will throw NPW if this is null
-        }
+        this.defaultEventHandler = eventHandler;
 
         // Add shutdown hook to automatically close
         Runtime.getRuntime().addShutdownHook( new Thread(this::shutdown));
@@ -72,10 +64,9 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             EventHandler impressionsEventHandler,
             CountDownLatch initialDownloadDoneLatch,
             AtomicBoolean downloadSuccessful,
-            boolean isOffline,
             BooleanSupplier runCodeOnShutdown) {
         return new DefaultUnlaunchClient(dataStore, eventHandler, flagInvocationMetricHandler,
-                impressionsEventHandler, initialDownloadDoneLatch, downloadSuccessful, isOffline, runCodeOnShutdown);
+                impressionsEventHandler, initialDownloadDoneLatch, downloadSuccessful, runCodeOnShutdown);
     }
 
     private UnlaunchFeature evaluate(String flagKey, String identity, UnlaunchAttribute ... attributes) {
@@ -104,7 +95,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         }
 
         if (flag == null) {
-            logger.warn("UnlaunchFeature '{}' not found in the data store. Variation is unknown", flagKey);
+            logger.warn("UnlaunchFeature '{}' not found in the data store. Returning 'control' variation", flagKey);
             return UnlaunchFeature.create(flagKey, UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, null,
                     "flag was not found in the in-memory cache");
         }
@@ -140,7 +131,8 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         boolean closed = initialDownloadDoneLatch.await(timeout, unit);
 
         if (!closed) {
-            logger.error("Unlaunch client didn't finish initialization in {} seconds. Check logs are any errors.", unit.toSeconds(timeout) );
+            logger.error("Unlaunch client didn't finish initialization in {} seconds. The download could still be in " +
+                            "progress. Check logs for any errors.", unit.toSeconds(timeout) );
             throw new TimeoutException("Unlaunch client was not ready in " +  unit.toSeconds(timeout) + " seconds" );
         }
     }
@@ -162,8 +154,9 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     @Override
     public void shutdown() {
         if (shutdownInitiated.get()) {
-            logger.debug("shutdown already initiated on the client");
+            logger.debug("shutdown already initiated on the client. It is safe to ignore this message");
         } else {
+            logger.debug("client shutdown called");
             shutdownInitiated.set(true);
             runCodeOnShutdown.getAsBoolean();
         }

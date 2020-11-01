@@ -84,7 +84,8 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                     logger.error("HTTP error downloading features: {} - {}", resBodyJson.get("data"), httpStatus);
                 }
             } else {
-                logger.debug("cached {} feature flag", flagsMap.size());
+                logger.debug("synced flags with the server. No update. In-memory data store has {} flags",
+                        flagsMap.size());
             }
         } catch ( UnlaunchHttpException ex) {
             logger.warn("unable to fetch flags using REST API " + ex.getMessage());

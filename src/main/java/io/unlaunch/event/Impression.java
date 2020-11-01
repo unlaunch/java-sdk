@@ -19,27 +19,16 @@ public class Impression extends Event {
     private final String variationKey; // will be use for variation count
     private final String flagStatus; 
     private final String evaluationReason;
-    private static String machineIp = "Not available";
     private static String machineName = "Not available";
 
     private static final Logger logger = LoggerFactory.getLogger(Impression.class);
 
     static {
         try {
-            InetAddress inetAddress = InetAddress.getLocalHost();
-            machineName = inetAddress.getHostName();
-            
-            Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (netInterfaces.hasMoreElements()) {
-                for (InterfaceAddress netAddress : netInterfaces.nextElement().getInterfaceAddresses()) {
-                    if (netAddress.getAddress().isSiteLocalAddress()) {
-                        machineIp = netAddress.getAddress().getHostAddress(); //TODO: Remove don't need locl lP. Useless
-                    }
-                }
-            }
-
+            InetAddress localHost = InetAddress.getLocalHost();
+            machineName = localHost.getHostName();
         } catch (Exception e) {
-            logger.error("error getting machine name or IP address");
+            logger.error("error getting machine name");
         }
     }
     
@@ -70,10 +59,6 @@ public class Impression extends Event {
 
     public String getEvaluationReason() {
         return evaluationReason;
-    }
-
-    public String getMachineIp() {
-        return machineIp;
     }
 
     public String getMachineName() {
