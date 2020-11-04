@@ -1,4 +1,4 @@
-vpackage io.unlaunch.event;
+package io.unlaunch.event;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.unlaunch.UnlaunchRestWrapper;
