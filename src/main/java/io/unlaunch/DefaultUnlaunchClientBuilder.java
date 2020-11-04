@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Internal implementation of default builder for building Unlaunch clients.
  *
- * <>This class is mutable and hence it is NOT Thread-safe.</>
+ * <p>This class is mutable and hence it is NOT Thread-safe.</p>
  *
  * @author umer mansoor
  */
