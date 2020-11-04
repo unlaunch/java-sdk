@@ -38,12 +38,8 @@ abstract class AbstractEventHandler implements EventHandler {
         this.restClient = restClient;
         this.name = name;
         this.maxBufferSize = maxBufferSize;
-
-        ThreadFactoryBuilder threadFactoryBuilder = new ThreadFactoryBuilder();
-        threadFactoryBuilder.setNameFormat("evt-handler-" + name + "-%d");
-
         flushExecutor = Executors.newScheduledThreadPool(1,
-                new ThreadFactoryBuilder().setNameFormat("evt-handler-" + name + "-flush").build());
+                new ThreadFactoryBuilder().setNameFormat(name + "-flush" + "-%d").build());
         flushExecutor.scheduleWithFixedDelay(new QueueConsumer(), flushIntervalInSeconds, flushIntervalInSeconds, TimeUnit.SECONDS);
     }
 

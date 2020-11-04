@@ -4,9 +4,6 @@ import io.unlaunch.utils.UnlaunchConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
 
 /**
  *

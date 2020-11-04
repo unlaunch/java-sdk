@@ -33,7 +33,7 @@ final class CountAggregatorEventHandler implements EventHandler, Closeable {
         Preconditions.checkArgument(runFrequencyInMillis > 0);
         executorService.scheduleAtFixedRate(this::run, runFrequencyInMillis, runFrequencyInMillis, TimeUnit.MILLISECONDS);
         this.eventHandler = eventHandler;
-        logger.info("Variation count metrics will be aggregated every {} millseconds", runFrequencyInMillis);
+        logger.info("Variation count metrics will be aggregated every {} milliseconds", runFrequencyInMillis);
     }
 
 

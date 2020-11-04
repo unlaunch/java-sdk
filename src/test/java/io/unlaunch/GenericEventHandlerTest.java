@@ -17,7 +17,8 @@ public class GenericEventHandlerTest {
 
     @Test
     public void testEventIsNull() {
-        UnlaunchRestWrapper unlaunchRestWrapper = UnlaunchRestWrapper.create("blah", "blah", "blah");
+        UnlaunchRestWrapper unlaunchRestWrapper =
+                UnlaunchRestWrapper.create("blah", "blah", "blah", 1000, 1000);
         EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,1000);
         boolean res = eventHandler.handle(null);
         Assert.assertFalse(res);
@@ -26,7 +27,8 @@ public class GenericEventHandlerTest {
 
     @Test
     public void testEventsRejectedAfterClosed() {
-        UnlaunchRestWrapper unlaunchRestWrapper = UnlaunchRestWrapper.create("blah", "blah", "blah");
+        UnlaunchRestWrapper unlaunchRestWrapper =
+                UnlaunchRestWrapper.create("blah", "blah", "blah", 1000, 1000);
         EventHandler eventHandler =EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper, 1000);
         eventHandler.close();
         boolean res = eventHandler.handle(new Event("blah", ""));
