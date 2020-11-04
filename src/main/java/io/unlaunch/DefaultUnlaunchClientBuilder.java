@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Internal implementation of default builder for building Unlaunch clients.
  *
- * <>This class is mutable and hence it is NOT Thread-safe.</>
+ * <p>This class is mutable and hence it is NOT Thread-safe.</p>
  *
  * @author umer mansoor
  */
@@ -35,6 +35,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private TimeUnit eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
     private int eventsQueueSize = 500;
     private String host = "https://api.unlaunch.io";
+    private long connectionTimeoutMs = 10_000;
+    private long readTimeoutMs = 10_000;
     private  String yamlFeaturesFilePath;
 
     // These are internal flags to track if values are updated by the user. If so,
@@ -53,6 +55,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public static int MIN_EVENTS_FLUSH_INTERVAL_IN_SECONDS = 15;
     public static int MIN_EVENTS_QUEUE_SIZE = 500;
     public static int MIN_METRICS_QUEUE_SIZE = 100;
+    public static int MIN_CONNECTION_TIMEOUT_MILLIS = 1000;
+    public static int MIN_READOUT_TIMEOUT_MILLIS = 1000;
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -83,6 +87,17 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         return this;
     }
 
+    @Override
+    public UnlaunchClientBuilder connectionTimeout(long timeout, TimeUnit unit) {
+        connectionTimeoutMs = unit.toMillis(timeout);
+        return this;
+    }
+
+    @Override
+    public UnlaunchClientBuilder readTimeout(long timeout, TimeUnit unit) {
+        readTimeoutMs = unit.toMillis(timeout);
+        return this;
+    }
 
     @Override
     public UnlaunchClientBuilder host(String host) {
@@ -100,6 +115,11 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         return this;
     }
 
+    @Override
+    public UnlaunchClientBuilder metricsQueueSize(int maxQueueSize) {
+        this.metricsQueueSize = maxQueueSize;
+        return this;
+    }
 
     @Override
     public UnlaunchClientBuilder eventsFlushInterval(long interval, TimeUnit unit) {
@@ -112,12 +132,6 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     @Override
     public UnlaunchClientBuilder eventsQueueSize(int maxQueueSize) {
         this.eventsQueueSize = maxQueueSize;
-        return this;
-    }
-
-    @Override
-    public UnlaunchClientBuilder metricsQueueSize(int maxQueueSize) {
-        this.metricsQueueSize = maxQueueSize;
         return this;
     }
 
@@ -164,7 +178,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     MIN_POLL_INTERVAL_IN_SECONDS );
         }
 
-        UnlaunchRestWrapper restWrapperForFlagApi = UnlaunchRestWrapper.create(sdkKey, host, flagApiPath);
+        UnlaunchRestWrapper restWrapperForFlagApi =
+                UnlaunchRestWrapper.create(sdkKey, host, flagApiPath, connectionTimeoutMs, readTimeoutMs);
         final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
          final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
         RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
@@ -184,19 +199,22 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         // This is currently not is use; we'll use this for event tracking
         long eventFlushIntervalInSeconds = eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval);
-        UnlaunchRestWrapper eventsApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, eventApiPath);
+        UnlaunchRestWrapper eventsApiRestClient =
+                UnlaunchRestWrapper.create(sdkKey, host, eventApiPath, connectionTimeoutMs, readTimeoutMs);
         EventHandler eventHandler = EventHandler.createGenericEventHandler(
                 "generic",
                 eventsApiRestClient,
                 eventFlushIntervalInSeconds,
                 eventsQueueSize);
 
-        UnlaunchRestWrapper impressionApiRestClient = UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath);
-        EventHandler impressionsEventHandler = EventHandler.createGenericEventHandler(
-                "metrics",
+        UnlaunchRestWrapper impressionApiRestClient =
+                UnlaunchRestWrapper.create(sdkKey, host, impressionApiPath, connectionTimeoutMs, readTimeoutMs);
+        EventHandler impressionsEventHandler =
+                EventHandler.createGenericEventHandler(
+                "metrics-impressions",
                 impressionApiRestClient,
                 metricsFlushInterval,
-                metricsQueueSize);
+                    metricsQueueSize);
 
         EventHandler variationsCountEventHandler = EventHandler.createCountAggregatorEventHandler(
                 eventHandler,
@@ -272,6 +290,16 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             Preconditions.checkArgument(pollingIntervalTimeUnit != null, "pollingIntervalTimeUnit cannot be null");
             Preconditions.checkArgument(pollingIntervalTimeUnit.toSeconds(pollingInterval) >= MIN_POLL_INTERVAL_IN_SECONDS,
                     "pollingInterval() must be great than " + MIN_POLL_INTERVAL_IN_SECONDS);
+
+            Preconditions.checkArgument(connectionTimeoutMs >= MIN_CONNECTION_TIMEOUT_MILLIS,
+                    "connectionTimeOut must be at least 1 second");
+            Preconditions.checkArgument(connectionTimeoutMs < Integer.MAX_VALUE,
+                    "connectionTimeOut must be less than Integer.MAX_VALUE=" + Integer.MAX_VALUE );
+
+            Preconditions.checkArgument(readTimeoutMs >= MIN_READOUT_TIMEOUT_MILLIS,
+                    "readTimeOut must be at least 1 second");
+            Preconditions.checkArgument(readTimeoutMs < Integer.MAX_VALUE,
+                    "readTimeOut must be less than Integer.MAX_VALUE=" + Integer.MAX_VALUE );
 
             Preconditions.checkArgument(metricsFlushIntervalTimeUnit != null, "metricsFlushIntervalTimeUnit cannot be null");
             Preconditions.checkArgument(metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval) >= MIN_METRICS_FLUSH_INTERVAL_IN_SECONDS,

@@ -42,6 +42,26 @@ public interface UnlaunchClientBuilder {
     UnlaunchClientBuilder pollingInterval(long interval, TimeUnit unit);
 
     /**
+     * Sets the default connect timeout for HTTP connections.
+     * <p>This is the time to establish the connection with remote Unlaunch servers.</p>
+     * <p>The default value is 10 seconds. The minimum value allowed is 1 second.</p>
+     * @param timeout
+     * @param unit
+     * @return  {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder connectionTimeout(long timeout, TimeUnit unit);
+
+    /**
+     * Sets the default read timeout for HTTP connections.
+     * <p> Specifies the time to wait, after establishing the connection, for data to arrive.</p>
+     *  <p>The default value is 10 seconds. The minimum value allowed is 1 second.</p>
+     * @param timeout
+     * @param unit
+     * @return  {@link UnlaunchClientBuilder}
+     */
+    UnlaunchClientBuilder readTimeout(long timeout, TimeUnit unit);
+
+    /**
      * Unlaunch server to connect to for downloading feature flags, submitting events, etc.
      * <p>Use this if you are running Unlaunch backend service on-premise or are enterprise customer. The default
      * value is https://api.unlaunch.io</p>

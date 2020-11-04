@@ -51,7 +51,7 @@ public class ExampleApp {
       // If you attached (key-value) configuration to your feature flag variations, 
       // here's how you can retrieve it:
        UnlaunchFeature feature = client.getFeature("new_login_ui", userId);
-       String colorHexCode = feature.getVariationConfig().getString("login_button_color", "#cd5c5c");
+       String colorHexCode = feature.getVariationConfig().getString("login_btn_clr", "#cd5c5c");
 
        // shutdown the client to flush any events or metrics 
        client.shutdown();

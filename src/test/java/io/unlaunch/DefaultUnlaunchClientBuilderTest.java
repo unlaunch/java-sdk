@@ -52,6 +52,38 @@ public class DefaultUnlaunchClientBuilderTest {
     }
 
     @Test(expected = IllegalStateException.class)
+    public void testInvalidNegativeConnectionTimeOut() {
+        UnlaunchClient.builder().
+                sdkKey("sdkKey").
+                connectionTimeout(-1, TimeUnit.SECONDS).
+                build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testInvalidNegativeReadTimeOut() {
+        UnlaunchClient.builder().
+                sdkKey("sdkKey").
+                readTimeout(-1, TimeUnit.SECONDS).
+                build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testInvalidMaxIntConnectionTimeOut() {
+        UnlaunchClient.builder().
+                sdkKey("sdkKey").
+                connectionTimeout(Integer.MAX_VALUE, TimeUnit.MILLISECONDS).
+                build();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testInvalidMaxIntReadTimeOut() {
+        UnlaunchClient.builder().
+                sdkKey("sdkKey").
+                readTimeout(Integer.MAX_VALUE, TimeUnit.MILLISECONDS).
+                build();
+    }
+
+    @Test(expected = IllegalStateException.class)
     public void testNoSdkKeyProvidedAndNoEnvironmentVariableSet() {
         UnlaunchClient.builder().build();
     }
