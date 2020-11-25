@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Unlaunch Java SDK</name>
     <description>Java SDK to use Unlauch feature flags</description>
     <url>www.unlaunch.io</url>
@@ -33,10 +33,11 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:unlaunch/java-sdk.git</connection>
-        <developerConnection>scm:git@github.com:unlaunch/java-sdk.git</developerConnection>
-        <url>git@github.com:unlaunch/java-sdk.git</url>
-    </scm>
+        <connection>scm:git:https://github.com/unlaunch/java-sdk.git</connection>
+        <developerConnection>scm:git:https://github.com/unlaunch/java-sdk.git</developerConnection>
+        <url>https://github.com/unlaunch/java-sdk</url>
+    <tag>HEAD</tag>
+  </scm>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -79,7 +80,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>[4.13.1,)</version>
             <scope>test</scope>
         </dependency>
 
@@ -114,7 +115,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>11.0.2</version>
+            <version>[24.1.1,)</version>
         </dependency>
 
         <dependency>
@@ -209,12 +210,21 @@
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.3</version>
+                <version>1.6.8</version>
                 <extensions>true</extensions>
                 <configuration>
                     <serverId>ossrh</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>pom.xml</checkModificationExclude>
+                    </checkModificationExcludes>
                 </configuration>
             </plugin>
         </plugins>
@@ -227,7 +237,7 @@
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
         </repository>
     </distributionManagement>
 </project>
