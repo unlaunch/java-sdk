@@ -53,7 +53,7 @@ public interface UnlaunchClientBuilder {
 
     /**
      * Sets the default read timeout for HTTP connections.
-     * <p> Specifies the time to wait, after establishing the connection, for data to arrive.</p>
+     * <p> Specifies the time to wait for data to arrive after establishing the connection.</p>
      *  <p>The default value is 10 seconds. The minimum value allowed is 1 second.</p>
      * @param timeout
      * @param unit

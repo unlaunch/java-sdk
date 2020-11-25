@@ -36,7 +36,8 @@ public class DefaultUnlaunchClientIT {
     UnlaunchClient client;
     @Before
     public void init() {
-        client = UnlaunchClient.builder().sdkKey("test-sdk-ff367fd3-accc-43e2-88d4-24edda0206c3").build();
+        client = UnlaunchClient.builder().host("https://api-qa.unlaunch.io") .
+                sdkKey("test-sdk-ff367fd3-accc-43e2-88d4-24edda0206c3").build();
 
          attr1 = UnlaunchAttribute.newString("account_type", "prepaid");
          attr2 = UnlaunchAttribute.newNumber("max_loan", 500);
