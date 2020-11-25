@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>0.0.1</version>
     <name>Unlaunch Java SDK</name>
     <description>Java SDK to use Unlauch feature flags</description>
     <url>www.unlaunch.io</url>
@@ -33,10 +33,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:unlaunch/java-sdk.git</connection>
-        <developerConnection>scm:git:git@github.com:unlaunch/java-sdk.git</developerConnection>
-        <url>https://github.com/unlaunch/java-sdk/tree/main</url>
-      <tag>unlaunch-java-sdk-1.0.0</tag>
+        <connection>scm:git:https://github.com/unlaunch/java-sdk.git</connection>
+        <developerConnection>scm:git:https://github.com/unlaunch/java-sdk.git</developerConnection>
+        <url>https://github.com/unlaunch/java-sdk</url>
+    <tag>unlaunch-java-sdk-0.0.1</tag>
   </scm>
 
     <properties>
