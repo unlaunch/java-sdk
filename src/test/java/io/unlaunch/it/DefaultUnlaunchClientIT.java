@@ -15,6 +15,7 @@ import org.junit.*;
  *
  * @author jawad
  */
+@Ignore
 public class DefaultUnlaunchClientIT {
 
     String userId = "10";
