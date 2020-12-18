@@ -278,6 +278,24 @@ enum Operator {
 
     },
     /**
+     * Returns true if userValue is type of UnlaunchStringValue and does not contain any
+     * of the value in list. Returns false if userValue is null or userValue is
+     * not type of UnlaunchStringValue
+     */
+    NOT_CONTAINS("NCON") {
+
+        @Override
+        public boolean apply(List<String> values, UnlaunchValue userValue, AttributeType type) {
+
+            if (userValue == null || !(userValue instanceof UnlaunchStringValue)) {
+                return false;
+            }
+
+            return !values.stream().anyMatch(value -> userValue.toString().contains(value));
+        }
+
+    },
+    /**
      * Returns true if userValue is type of UnlaunchStringValue and does not
      * start with any of the value in list. Returns false if userValue is null
      * or userValue is not type of UnlaunchStringValue
