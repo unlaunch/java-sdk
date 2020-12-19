@@ -43,6 +43,7 @@ abstract class AbstractEventHandler implements EventHandler {
         flushExecutor.scheduleWithFixedDelay(new QueueConsumer(), flushIntervalInSeconds, flushIntervalInSeconds, TimeUnit.SECONDS);
     }
 
+
     @Override
     public boolean handle(Event event) {
         if (event == null || closed.get()) {
@@ -65,7 +66,8 @@ abstract class AbstractEventHandler implements EventHandler {
 
     @Override
     public void flush() {
-        flushExecutor.execute(new QueueConsumer());
+        // Run in the current thread
+        new QueueConsumer().run();
     }
 
     /**

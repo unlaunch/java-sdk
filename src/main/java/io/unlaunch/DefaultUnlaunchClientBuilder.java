@@ -150,6 +150,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClient build() {
         if (sdkKey != null && !sdkKey.isEmpty()) {
             if (!sdkKey.startsWith("prod")) {
+                logger.info("SDK key doesn't appear to be for production environment. Using aggressive settings to " +
+                        "poll and sync events so data appears on Unlaunch Console faster.");
                 loadPreProductionDefaults();
             }
         }
@@ -246,7 +248,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     }
 
     /**
-     * On Pre-production environments which are mostly for testing, set thresholds to their mininum values.
+     * On Pre-production environments which are mostly for testing, set thresholds to their minimum values.
      */
     private void loadPreProductionDefaults() {
         if (!this.pollingIntervalUpdatedByUser) {

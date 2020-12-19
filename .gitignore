@@ -88,3 +88,5 @@ java-server.iml
 .DS_Store
 
 *.iml
+
+.gradle/

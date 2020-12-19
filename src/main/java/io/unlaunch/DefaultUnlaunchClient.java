@@ -102,7 +102,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
 
         UnlaunchFeature result  = evaluator.evaluate(flag, user);
 
-        Impression impression = new Impression(flag.getKey(), user.getId(), result.getVariationKey(),
+        Impression impression = new Impression(flag.getKey(), user.getId(), result.getVariation(),
                     flag.isEnabled(), result.getEvaluationReason());
         track(impression);
 
@@ -112,7 +112,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     @Override
     public String getVariation(String flagKey, String identity, UnlaunchAttribute ... attributes) {
         UnlaunchFeature f =  evaluate(flagKey, identity, attributes);
-        return f.getVariationKey();
+        return f.getVariation();
     }
 
     @Override

@@ -82,6 +82,13 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                     fetchedSuccessfully = true;
                 } else {
                     logger.error("HTTP error downloading features: {} - {}", resBodyJson.get("data"), httpStatus);
+                    if (httpStatus.equals("403")) {
+                        logger.info("The SDK key you provided was rejected by the server and no data was " +
+                                "returned. All variation evaluations will return 'control'. You must use the correct " +
+                                "SDK key for the project and environment you're connecting to. For more " +
+                                "information on how to obtain right SDK keys, see: " +
+                                "https://docs.unlaunch.io/docs/sdks/sdk-keys");
+                    }
                 }
             } else {
                 logger.debug("synced flags with the server. No update. In-memory data store has {} flags",

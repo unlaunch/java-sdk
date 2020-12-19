@@ -46,7 +46,7 @@ public class OfflineUnlaunchClientTest {
 
         UnlaunchFeature f = offlineClient.getFeature(UUID.randomUUID().toString(),
                 UUID.randomUUID().toString());
-        Assert.assertEquals(UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, f.getVariationKey());
+        Assert.assertEquals(UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, f.getVariation());
         Assert.assertEquals(0, f.getVariationConfigAsMap().size());
         Assert.assertEquals(100, f.getVariationConfig().getInt("price", 100));
 

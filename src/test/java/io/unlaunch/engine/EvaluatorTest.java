@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -140,7 +140,7 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     @Test
@@ -173,7 +173,7 @@ public class EvaluatorTest {
 
             UnlaunchFeature result = instance.evaluate(flag, percentRolloutUser);
 
-            if (result.getVariationKey().equals(varKeyOFF)) {
+            if (result.getVariation().equals(varKeyOFF)) {
                 countOFF++;
             }
         }
@@ -195,7 +195,7 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
 
     }
 

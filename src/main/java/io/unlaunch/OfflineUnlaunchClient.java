@@ -49,7 +49,7 @@ public class OfflineUnlaunchClient implements UnlaunchClient {
 
     @Override
     public String getVariation(String flagKey, String identity, UnlaunchAttribute... attributes) {
-        return getFeature(flagKey, identity, null).getVariationKey();
+        return getFeature(flagKey, identity, null).getVariation();
     }
 
     @Override

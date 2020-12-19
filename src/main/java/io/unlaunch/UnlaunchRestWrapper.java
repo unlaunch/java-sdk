@@ -53,7 +53,8 @@ public final class UnlaunchRestWrapper {
         try {
             return invocationBuilder.post(entity);
         } catch ( ProcessingException  | WebApplicationException ex) {
-            logger.warn("unable to perform post action on entity {}", entity);
+            logger.warn("unable to perform HTTP POST action on URL {} for entity {}. Error was {}",
+                    apiWebTarget.getUri(), entity, ex.toString());
             throw new UnlaunchHttpException("unable to perform post action on entity", ex);
         }
     }
@@ -64,7 +65,8 @@ public final class UnlaunchRestWrapper {
             lastModified = response.getLastModified();
             return response.readEntity(responseType);
         } catch ( ProcessingException  | WebApplicationException ex) {
-            logger.warn("unable to perform get action on URL {}. Error was: {}", apiWebTarget.getUri(), ex.getMessage());
+            logger.warn("unable to perform HTTP GET action on URL {}. Error was: {}", apiWebTarget.getUri(),
+                    ex.getMessage());
             throw new UnlaunchHttpException("unable to perform get action on entity", ex);
         }
     }

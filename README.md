@@ -19,7 +19,18 @@ The Unlaunch Java SDK provides a Java API to access Unlaunch feature flags and o
 Unlaunch Java SDK requires Java 8 or higher.
 
 ## Getting Started
-Here is a simple example:
+Here is a simple example. 
+
+First, add the maven dependency to your project. Use the latest version from [here](https://mvnrepository.com/artifact/io.unlaunch.sdk/unlaunch-java-sdk).
+
+```$xslt
+ <dependency>
+    <groupId>io.unlaunch.sdk</groupId>
+    <artifactId>unlaunch-java-sdk</artifactId>
+    <version>0.0.4</version>
+</dependency>
+```
+Here's how you'd use the Java SDK in your application.
 
 ```java
 import io.unlaunch.UnlaunchClient;
@@ -59,6 +70,8 @@ public class ExampleApp {
 }
 ```
 
+ For more information, see the [official guide](https://docs.unlaunch.io/docs/sdks/java-sdk#configuration).
+
 ## Build instructions
 
 ### Requirements
@@ -81,16 +94,7 @@ If tests are failing, and you need to build (not recommended,) you can force to 
 mvn clean install -Dmaven.test.skip=true -Dgpg.skip
 ```
 
-### Adding as a dependency in your project
-```$xslt
-  <dependency>
-      <groupId>io.unlaunch.sdk</groupId>
-      <artifactId>unlaunch-java-sdk</artifactId>
-      <version>1.0.0</version>
-  </dependency>
-```
-
-## Usage and Examples
+## Customization
 
 You can use builder to customize the client. For more information, see the [official guide](https://docs.unlaunch.io/docs/sdks/java-sdk#configuration).
 
@@ -123,6 +127,10 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) to find how you can contribute.
 ## License
 Licensed under the Apache License, Version 2.0. See: [Apache License](LICENSE.md).
 
+## Publish Releases on Maven Central
+To publish a new release version on Maven Central, follow this [guide](https://infra.apache.org/publishing-maven
+-artifacts.html) (Make sure you have `-SNAPSHOT` version in the pom file.) You may also create a new tag on the`main` branch.  It will automatically start the deployment. 
+
 ## About Unlaunch
 Unlaunch is a Feature Release Platform for engineering teams. Our mission is allow engineering teams of all
  sizes to release features safely and quickly to delight their customers. To learn more about Unlaunch, please visit
@@ -134,7 +142,7 @@ Unlaunch is a Feature Release Platform for engineering teams. Our mission is all
 ##### Question: I'm seeing `gpg: signing failed: Inappropriate ioctl for device`
 Answer: Please run `export GPG_TTY=$(tty)` See: https://github.com/keybase/keybase-issues/issues/2798
 
-##### Question: Where are the artifacts deployed as a result of `mvn deploy`?
+##### Question: Where are the artifacts deployed?
 Answer: The artifacts are published on Sonatype at: https://oss.sonatype.org/#nexus-search;quick~io.unlaunch.sdk
 
 ## More Questions?
