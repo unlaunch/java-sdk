@@ -128,8 +128,27 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) to find how you can contribute.
 Licensed under the Apache License, Version 2.0. See: [Apache License](LICENSE.md).
 
 ## Publish Releases on Maven Central
-To publish a new release version on Maven Central, follow this [guide](https://infra.apache.org/publishing-maven
--artifacts.html) (Make sure you have `-SNAPSHOT` version in the pom file.) You may also create a new tag on the`main` branch.  It will automatically start the deployment. 
+To publish a new release version on Maven Central, there are two ways. Make sure you have `-SNAPSHOT` version in the pom file.
+
+Create a new Git tag and let the `./deploy` script do its job. You'll need to **manually** update the version in `pom
+.xml` after this is successful. Only do this on the `main` branch. For example, to release `0.0.3` version:
+
+```$xslt
+git tag 0.0.3 
+git push origin --tags
+```
+
+Then update `pom.xml` version to be `0.0.4-SNAPSHOT`. Commit your code to `develop` and PR into `main`.
+
+Alternatively, you can also use the Maven Release plugin to deploy directly from your machine. Please keep in mind
+ that it will create a Git tag which will force the `./deploy` script to run and do another release. This is
+  something that we need to fix in the deploy script i.e. don't run it the tag starts with `unlaunch-java-sdk` which
+   is what Maven Release plugin creates. // Todo Do this before the next manual release and update this comment after
+    its successful.
+ 
+Helpful guides:
+- [guide](https://central.sonatype.org/pages/apache-maven.html)
+- [guide](https://infra.apache.org/publishing-maven-artifacts.html)
 
 ## About Unlaunch
 Unlaunch is a Feature Release Platform for engineering teams. Our mission is allow engineering teams of all
