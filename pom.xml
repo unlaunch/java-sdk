@@ -4,7 +4,7 @@
     <artifactId>unlaunch-java-sdk</artifactId>
     <version>0.0.3-SNAPSHOT</version>
     <name>Unlaunch Java SDK</name>
-    <description>Java SDK to use Unlauch feature flags</description>
+    <description>Java SDK to use Unlaunch feature flags</description>
     <url>www.unlaunch.io</url>
     <organization>
         <name>Unlaunch</name>

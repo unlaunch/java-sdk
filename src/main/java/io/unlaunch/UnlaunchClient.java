@@ -26,8 +26,11 @@ import java.util.concurrent.TimeoutException;
  *     client.shutdown();
  * </pre>
  *
- *<p>This is the <b>server-side</b> SDK which means it will download all feature flags and associated data
- * upon initialization (and periodically based on settings.)</p>
+ *<p>This is a <b>server-side</b> SDK which means it will download all feature flags and associated data
+ * upon initialization and keep it in-memory. All feature flag evaluations will be done against the in-memory data
+ * store for performance. It will periodically sync up with server to download any new changes. For more information,
+ * see the Official Guide of this SDK here:
+ * <a href="https://docs.unlaunch.io/docs/sdks/java-sdk">https://docs.unlaunch.io/docs/sdks/java-sdk</a>.</p>
  *
  * <p>Creating a new client can be an expensive operation and should only be done once and shared in an application
  * The <em>close()</em> method needs to be called on the client object to clean up resources such as threads during
@@ -194,11 +197,11 @@ public interface UnlaunchClient extends Cloneable {
     void awaitUntilReady(long timeout, TimeUnit unit)  throws InterruptedException, TimeoutException;
 
     /**
-     * Returns true is the client is intialized and ready. False otherwise.
+     * <p>Returns true is the client is initialized and ready. False otherwise.</p>
      *
      * <p>Initialized means that the client was able to download flags and data from the Unlaunch server at leasr
      * once. </p>
-     * @return
+     * @return true if the client is ready, false otherwise.
      */
     boolean isReady();
 

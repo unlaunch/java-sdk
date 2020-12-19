@@ -24,8 +24,6 @@ import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.spec.PSource;
-
 /**
  *
  * @author ghauri
@@ -111,7 +109,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -148,7 +146,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -185,7 +183,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -222,7 +220,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -259,7 +257,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -296,7 +294,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     // STRING ATTRIBUTE TEST END!
 
@@ -335,7 +333,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -372,7 +370,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -409,7 +407,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -446,7 +444,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -483,7 +481,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -520,7 +518,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 //    NUMBER ATTRIBUTE TYPE TEST END
 //    START DATE ATTRIBUTE TEST
@@ -560,7 +558,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -597,7 +595,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -634,7 +632,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -671,7 +669,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -708,7 +706,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -745,7 +743,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 //    DATE ATTRIBUTE TYPE TEST END
 //    START DATE_TIME ATTRIBUTE TYPE
@@ -784,7 +782,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -821,7 +819,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -858,7 +856,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -895,7 +893,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -936,7 +934,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -978,7 +976,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -1021,7 +1019,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     @Test
     public void testSetAttributeTypeOperatorNotEquals() {
@@ -1061,7 +1059,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -1102,7 +1100,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -1143,7 +1141,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -1186,7 +1184,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     
     @Test
@@ -1227,6 +1225,6 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
         
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 }

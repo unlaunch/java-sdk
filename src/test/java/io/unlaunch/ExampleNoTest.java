@@ -44,9 +44,9 @@ public class ExampleNoTest {
                 UnlaunchAttribute.newString("device-type", "iOS"),
                 UnlaunchAttribute.newBoolean("paid-user", true));
         f.getVariationConfig().getString("buttonColor", "blue");
-        if (f.getVariationKey().equals("on")) {
+        if (f.getVariation().equals("on")) {
             System.out.println("Variation is on");
-        } else if (f.getVariationKey().equals("off")) {
+        } else if (f.getVariation().equals("off")) {
             System.out.println("Variation is off");
         } else {
             System.out.println("default variation");
