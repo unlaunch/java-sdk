@@ -140,11 +140,7 @@ git push origin --tags
 
 Then update `pom.xml` version to be `0.0.4-SNAPSHOT`. Commit your code to `develop` and PR into `main`.
 
-Alternatively, you can also use the Maven Release plugin to deploy directly from your machine. Please keep in mind
- that it will create a Git tag which will force the `./deploy` script to run and do another release. This is
-  something that we need to fix in the deploy script i.e. don't run it the tag starts with `unlaunch-java-sdk` which
-   is what Maven Release plugin creates. // Todo Do this before the next manual release and update this comment after
-    its successful.
+Alternatively, you can also use the Maven Release plugin to deploy directly from your machine. 
  
 Helpful guides:
 - [guide](https://central.sonatype.org/pages/apache-maven.html)

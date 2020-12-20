@@ -34,7 +34,8 @@ fi
 # beforehand)
 gpg --fast-import .travis/all_maven_central.gpg
 
-if [ ! -z "$TRAVIS_TAG" ]
+# Do not push if tag begins with unlaunch* which is created when manually deploying
+if [ ! -z "$TRAVIS_TAG" ] && [[ $TRAVIS_TAG != unlaunch* ]]
 then
     echo "on a tag -> set pom.xml <version> to $TRAVIS_TAG"
     mvn --settings "${TRAVIS_BUILD_DIR}/.travis/mvn-settings.xml" org.codehaus.mojo:versions-maven-plugin:2.1:set -DnewVersion=$TRAVIS_TAG 1>/dev/null 2>/dev/null
