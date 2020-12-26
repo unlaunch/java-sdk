@@ -152,8 +152,7 @@ public class Evaluator {
         return true;
     }
 
-    private int getBucket(String userId, String featureId) {
-
+     int getBucket(String userId, String featureId) {
         if (userId == null || featureId == null) {
             throw new IllegalArgumentException("userId and featureId must not be null");
         }
@@ -168,9 +167,7 @@ public class Evaluator {
         return MurmurHash3.murmurhash3_x86_32(key, 0, key.length(), 0);
     }
 
-
     private Variation getVariationIfUserInAllowList(FeatureFlag flag, UnlaunchUser user) {
-
         for (Variation variation : flag.getVariations()) {
             if (variation.getAllowList() != null) {
                 List<String> allowList = Arrays.asList(variation.getAllowList().replace(" ", "").split(","));
@@ -184,7 +181,7 @@ public class Evaluator {
     }
 
     private Variation getVariationToServeByRule(Rule rule, int bucketNumber) {
-        Variation variationToServe = null;
+        Variation variationToServe;
         int sum = 0;
         for (Variation variation : rule.getVariations()) {
             sum += variation.getRolloutPercentage();
@@ -194,11 +191,10 @@ public class Evaluator {
             }
         }
         logger.warn("return null variationToServe. Something went wrong. Rule {}, bucketNumber {}", rule, bucketNumber);
-        return variationToServe;
+        return null;
     }
 
     private boolean isVariationAvailable(int rolloutPercent, int bucket) {
         return bucket <= rolloutPercent;
     }
-
 }
