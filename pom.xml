@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <name>Unlaunch Java SDK</name>
     <description>Java SDK to use Unlaunch feature flags</description>
     <url>www.unlaunch.io</url>
