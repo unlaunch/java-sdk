@@ -390,7 +390,7 @@ enum Operator {
             }
 
             Set userSet = (Set) userValue.get();
-            return values.stream().noneMatch(value -> userSet.contains(value));
+            return values.stream().anyMatch(value -> !userSet.contains(value));
         }
     };
 

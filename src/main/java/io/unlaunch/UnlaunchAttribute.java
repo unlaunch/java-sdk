@@ -1,5 +1,9 @@
 package io.unlaunch;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author umermansoor
  */
@@ -26,6 +30,22 @@ public class UnlaunchAttribute {
             throw new IllegalArgumentException("value argument must not be null or empty");
         }
         return create(key, value);
+    }
+
+    public static UnlaunchAttribute newSet(String key, Set<String> value) {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException("set must not be null or empty");
+        }
+
+        return create(key, value);
+    }
+
+    public static UnlaunchAttribute newSet(String key, List<String> value) {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException("list must not be null or empty");
+        }
+
+        return create(key, new HashSet<>(value));
     }
 
     public static UnlaunchAttribute  newNumber(String key, Number value) {

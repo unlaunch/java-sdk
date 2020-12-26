@@ -1198,6 +1198,7 @@ public class AttributeTypeTest {
         
         Set userSet = new HashSet();
         userSet.add("user");
+        userSet.add("new_user");
         UnlaunchSetValue setValue = Mockito.mock(UnlaunchSetValue.class);
         when(setValue.get()).thenReturn(userSet);
         

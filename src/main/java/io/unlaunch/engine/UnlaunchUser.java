@@ -147,8 +147,9 @@ public class UnlaunchUser {
 
     private UnlaunchValue<?> getUnlaunchAttributeFromJavaObject(Object value) {
         if (!(value instanceof Number) && !(value instanceof String) && !(value instanceof Boolean)
-                && !(value instanceof LocalDateTime) && !(value instanceof LocalDate) && !(value instanceof Date)) {
-            throw new IllegalArgumentException("value `" + value + "` must be of type String, Number, Boolean, LocalDate, LocalDateTime or Date");
+                && !(value instanceof LocalDateTime) && !(value instanceof LocalDate) && !(value instanceof Date)
+                && !(value instanceof Set)) {
+            throw new IllegalArgumentException("value `" + value + "` must be of type String, Number, Boolean, LocalDate, LocalDateTime, Date or Set");
         }
 
         if (value instanceof  Number) {
