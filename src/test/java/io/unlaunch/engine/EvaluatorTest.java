@@ -136,7 +136,7 @@ public class EvaluatorTest {
                 userOnVariations.put(String.valueOf(i),result.getVariation() );
             }
         }
-        assertTrue(countON > 5 && countON < 15);
+        assertTrue(countON >= 5 && countON < 20);
         // ---
 
         // Part 2:  increase percentage of ON; previously assigned users should keep their variation
@@ -156,7 +156,7 @@ public class EvaluatorTest {
                 }
             }
         }
-        assertTrue(countON > 35 && countON < 45);
+        assertTrue("ON variation distribution was not as expected. " + countON, countON >= 30 && countON <= 50);
         // ---
 
         // Part 3: increase percentage of ON; previously assigned users should keep their variation
@@ -176,12 +176,12 @@ public class EvaluatorTest {
                 }
             }
         }
-        assertTrue(countON > 65 && countON < 80);
+        assertTrue("ON variation distribution was not as expected. " + countON, countON >= 60 && countON <= 90);
         // ---
     }
 
     @Test
-    @Ignore //On Umer's Macbook ~ 7-11 seconds
+    @Ignore // On Umer's machine, 7-11 seconds
     public void testWhen_1000VariationsAreEvaluatedAgainstBucketing_Then_ItTakesLessThan15000MilliSeconds() {
         Evaluator instance = new Evaluator();
 
