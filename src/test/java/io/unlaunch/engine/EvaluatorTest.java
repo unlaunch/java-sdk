@@ -69,8 +69,10 @@ public class EvaluatorTest {
     }
 
     @Test
-    public void testPercentageRolloutDistribution() {
+    public void tesWhen_PercentagesAreEvenlyDistributedBetween2Variations_Then_EvenResultsAreReturned() {
         Evaluator instance = new Evaluator();
+
+        setUpDefaultFlag(50, 50);
 
         int countOFF = 0;
         int countON = 0;
@@ -183,6 +185,54 @@ public class EvaluatorTest {
 
         b = instance.getBucket("user2", "flag2");
         Assert.assertEquals(40, b);
+    }
+
+    @Test
+    public void testWhen_1000EvaluationsAreDone_Then_AllBucketsFrom1To100AreFilled() {
+        Evaluator instance = new Evaluator();
+        int[] arr = new int[100+1];
+        for (int i = 0; i < 1000; i++) {
+           int b =  instance.getBucket(String.valueOf(i), "");
+           arr[b] = 1;
+        }
+
+        for (int i = 1; i <= 100; i++) {
+            Assert.assertEquals("index " + i,1, arr[i]);
+        }
+    }
+
+    @Test
+    public void testWhen_EdgeCaseOnVariationIsSetTo1Percent_Then_ItShouldBeReturnedAtleastOnce() {
+        Evaluator instance = new Evaluator();
+        setUpDefaultFlag(1, 99);
+
+        boolean onSeen = false;
+
+        for (int i = 0; i < 100; i++) {
+            when(percentRolloutUser.getId()).thenReturn(String.valueOf(i));
+            UnlaunchFeature result = instance.evaluate(flag, percentRolloutUser);
+            if (result.getVariation().equals(varKeyON)) {
+                onSeen = true;
+            }
+        }
+        Assert.assertTrue(onSeen);
+    }
+
+    @Test
+    public void testWhen_EdgeCaseOnVariationIsSetTo0Percent_Then_ItShouldNotBeReturned() {
+        Evaluator instance = new Evaluator();
+        setUpDefaultFlag(0, 100);
+
+        boolean onSeen = false;
+
+        for (int i = 0; i < 100; i++) {
+            when(percentRolloutUser.getId()).thenReturn(String.valueOf(i));
+            UnlaunchFeature result = instance.evaluate(flag, percentRolloutUser);
+            if (result.getVariation().equals(varKeyON)) {
+                onSeen = true;
+            }
+        }
+        Assert.assertFalse(onSeen);
     }
 
     @Test
