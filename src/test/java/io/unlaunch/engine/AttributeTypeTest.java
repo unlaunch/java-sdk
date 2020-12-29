@@ -296,6 +296,76 @@ public class AttributeTypeTest {
         
         assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
+
+    @Test
+    public void testStringAttributeTypeOperatorContains() {
+        logger.debug("STRING_ATTRIBUTE_TYPE_OPERATOR_CONTAINS");
+
+        UnlaunchUser user = Mockito.mock(UnlaunchUser.class);
+        when(user.getId()).thenReturn("user123");
+
+        UnlaunchStringValue stringValue = Mockito.mock(UnlaunchStringValue.class);
+        when(stringValue.toString()).thenReturn("en-US");
+
+        Map<String, UnlaunchValue> map = new HashMap();
+        map.put("locale", stringValue);
+        when(user.getAllAttributes()).thenReturn(map);
+
+        List<String> values = new ArrayList<>();
+        values.add("n-U");
+        Condition condition = new Condition("locale", Operator.CONTAINS, AttributeType.STRING, values);
+
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(condition);
+
+        Rule rule = new Rule(false, 1, conditions, variations);
+
+        List<Rule> rules = new ArrayList<>();
+        rules.add(rule);
+        when(flag.getRules()).thenReturn(rules);
+
+        UnlaunchFeature unlaunchFeature = UnlaunchFeature.create(flagKey, varKeyON, null, "");
+
+        Evaluator instance = new Evaluator();
+        UnlaunchFeature result = instance.evaluate(flag, user);
+
+        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+    }
+
+    @Test
+    public void testStringAttributeTypeOperatorNOTContains() {
+        logger.debug("STRING_ATTRIBUTE_TYPE_OPERATOR_NOT_CONTAINS");
+
+        UnlaunchUser user = Mockito.mock(UnlaunchUser.class);
+        when(user.getId()).thenReturn("user123");
+
+        UnlaunchStringValue stringValue = Mockito.mock(UnlaunchStringValue.class);
+        when(stringValue.toString()).thenReturn("en-US");
+
+        Map<String, UnlaunchValue> map = new HashMap();
+        map.put("locale", stringValue);
+        when(user.getAllAttributes()).thenReturn(map);
+
+        List<String> values = new ArrayList<>();
+        values.add("n-1");
+        Condition condition = new Condition("locale", Operator.NOT_CONTAINS, AttributeType.STRING, values);
+
+        List<Condition> conditions = new ArrayList<>();
+        conditions.add(condition);
+
+        Rule rule = new Rule(false, 1, conditions, variations);
+
+        List<Rule> rules = new ArrayList<>();
+        rules.add(rule);
+        when(flag.getRules()).thenReturn(rules);
+
+        UnlaunchFeature unlaunchFeature = UnlaunchFeature.create(flagKey, varKeyON, null, "");
+
+        Evaluator instance = new Evaluator();
+        UnlaunchFeature result = instance.evaluate(flag, user);
+
+        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+    }
     // STRING ATTRIBUTE TEST END!
 
     // START NUMBER ATTRIBUTE TEST!
