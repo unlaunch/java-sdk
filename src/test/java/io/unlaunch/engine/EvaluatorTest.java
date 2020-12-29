@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package io.unlaunch.engine;
 
 import io.unlaunch.UnlaunchFeature;
@@ -15,16 +10,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.when;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author ghauri
- */
+
 public class EvaluatorTest {
 
     private static final Logger logger = LoggerFactory.getLogger(EvaluatorTest.class);
@@ -43,19 +34,12 @@ public class EvaluatorTest {
         setUpDefaultFlag(50L, 50L);
     }
 
-    @Test
-    public void testConstruction() {
-        Evaluator eval = new Evaluator();
-        assertNotNull(eval);
-    }
 
     /**
      * Test of evaluate method, of class Evaluator.
      */
     @Test
     public void testEvaluateWhenUserIsInAllowlistForOnVariation() {
-        logger.debug("EVALUATE_ALLOWLIST_USER_TREATMENT_ON");
-
         final String userId = "user123";
         
         UnlaunchUser user = Mockito.mock(UnlaunchUser.class);
@@ -66,13 +50,11 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
+        Assert.assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     @Test
     public void testEvaluateWhenDefaultRuleIsServed() {
-        logger.debug("EVALUATE_DEFAULT_RULE");
-
         final String userIdDefaultRule = "user456";
     
         UnlaunchUser user = Mockito.mock(UnlaunchUser.class);
@@ -83,19 +65,18 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
+        Assert.assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     @Test
-    public void testPercentageRolloutDistribution() {
-        logger.debug("EVALUATE_PERCENTAGE_ROLLOUT");
-
+    public void tesWhen_PercentagesAreEvenlyDistributedBetween2Variations_Then_EvenResultsAreReturned() {
         Evaluator instance = new Evaluator();
+
+        setUpDefaultFlag(50, 50);
 
         int countOFF = 0;
         int countON = 0;
 
-        long startTime = System.currentTimeMillis();
         for (int i = 0; i < 1000; i++) {
             String userPR = String.valueOf(i);
             when(percentRolloutUser.getId()).thenReturn(userPR);
@@ -110,12 +91,11 @@ public class EvaluatorTest {
                 countON++;
             }
         }
-        long totalTime = System.currentTimeMillis() - startTime;
 
-        logger.info("countOFF was {}. Total time {} millis", countOFF, totalTime);
+        logger.info("countOFF was {}. Total millis", countOFF);
 
-        assertTrue(countOFF < 600 && countOFF > 400);
-        assertTrue(countON < 600 && countON > 400);
+        Assert.assertTrue(countOFF < 600 && countOFF > 400);
+        Assert.assertTrue(countON < 600 && countON > 400);
     }
 
     @Test
@@ -136,7 +116,7 @@ public class EvaluatorTest {
                 userOnVariations.put(String.valueOf(i),result.getVariation() );
             }
         }
-        assertTrue(countON > 5 && countON < 15);
+        Assert.assertTrue(countON >= 5 && countON < 20);
         // ---
 
         // Part 2:  increase percentage of ON; previously assigned users should keep their variation
@@ -156,7 +136,7 @@ public class EvaluatorTest {
                 }
             }
         }
-        assertTrue(countON > 35 && countON < 45);
+        Assert.assertTrue("ON variation distribution was not as expected. " + countON, countON >= 30 && countON <= 50);
         // ---
 
         // Part 3: increase percentage of ON; previously assigned users should keep their variation
@@ -176,12 +156,12 @@ public class EvaluatorTest {
                 }
             }
         }
-        assertTrue(countON > 65 && countON < 80);
+        Assert.assertTrue("ON variation distribution was not as expected. " + countON, countON >= 60 && countON <= 90);
         // ---
     }
 
     @Test
-    @Ignore //On Umer's Macbook ~ 7-11 seconds
+    @Ignore // On Umer's machine, 7-11 seconds
     public void testWhen_1000VariationsAreEvaluatedAgainstBucketing_Then_ItTakesLessThan15000MilliSeconds() {
         Evaluator instance = new Evaluator();
 
@@ -194,10 +174,66 @@ public class EvaluatorTest {
 
         logger.info("Total time {} millis", totalTime);
 
-        assertTrue(totalTime < 15000);
+        Assert.assertTrue(totalTime < 15000);
     }
 
+    @Test
+    public void testKnownBucketsAllocationsForMurmur3() {
+        Evaluator instance = new Evaluator();
+        int b = instance.getBucket("user1", "flag1");
+        Assert.assertEquals(57, b);
 
+        b = instance.getBucket("user2", "flag2");
+        Assert.assertEquals(40, b);
+    }
+
+    @Test
+    public void testWhen_1000EvaluationsAreDone_Then_AllBucketsFrom1To100AreFilled() {
+        Evaluator instance = new Evaluator();
+        int[] arr = new int[100+1];
+        for (int i = 0; i < 1000; i++) {
+           int b =  instance.getBucket(String.valueOf(i), "");
+           arr[b] = 1;
+        }
+
+        for (int i = 1; i <= 100; i++) {
+            Assert.assertEquals("index " + i,1, arr[i]);
+        }
+    }
+
+    @Test
+    public void testWhen_EdgeCaseOnVariationIsSetTo1Percent_Then_ItShouldBeReturnedAtleastOnce() {
+        Evaluator instance = new Evaluator();
+        setUpDefaultFlag(1, 99);
+
+        boolean onSeen = false;
+
+        for (int i = 0; i < 100; i++) {
+            when(percentRolloutUser.getId()).thenReturn(String.valueOf(i));
+            UnlaunchFeature result = instance.evaluate(flag, percentRolloutUser);
+            if (result.getVariation().equals(varKeyON)) {
+                onSeen = true;
+            }
+        }
+        Assert.assertTrue(onSeen);
+    }
+
+    @Test
+    public void testWhen_EdgeCaseOnVariationIsSetTo0Percent_Then_ItShouldNotBeReturned() {
+        Evaluator instance = new Evaluator();
+        setUpDefaultFlag(0, 100);
+
+        boolean onSeen = false;
+
+        for (int i = 0; i < 100; i++) {
+            when(percentRolloutUser.getId()).thenReturn(String.valueOf(i));
+            UnlaunchFeature result = instance.evaluate(flag, percentRolloutUser);
+            if (result.getVariation().equals(varKeyON)) {
+                onSeen = true;
+            }
+        }
+        Assert.assertFalse(onSeen);
+    }
 
     @Test
     public void testWhen_FlagIsDisabled_Then_DefaultVariationIsServed() {
@@ -212,7 +248,7 @@ public class EvaluatorTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
+        Assert.assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     private void setUpDefaultFlag(long percentageVariationON, long percentageVariationOFF) {
@@ -294,5 +330,4 @@ public class EvaluatorTest {
 
         when(percentRolloutUser.getAllAttributes()).thenReturn(map);
     }
-
 }
