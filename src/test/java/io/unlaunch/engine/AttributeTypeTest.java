@@ -329,7 +329,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
 
     @Test
@@ -364,7 +364,7 @@ public class AttributeTypeTest {
         Evaluator instance = new Evaluator();
         UnlaunchFeature result = instance.evaluate(flag, user);
 
-        assertEquals(unlaunchFeature.getVariationKey(), result.getVariationKey());
+        assertEquals(unlaunchFeature.getVariation(), result.getVariation());
     }
     // STRING ATTRIBUTE TEST END!
 
