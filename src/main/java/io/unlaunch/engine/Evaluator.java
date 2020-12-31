@@ -59,13 +59,14 @@ public class Evaluator {
 
         Variation variationToServe;
         String evaluationReason = "";
+        StringBuilder sb = new StringBuilder();
 
         if (!flag.isEnabled()) {
             logger.debug("FLAG_DISABLED, {}, OFF_VARIATION is served to user {}", flag.getKey(), user.getId());
 
             variationToServe = flag.getOffVariation();
 
-            evaluationReason = "Flag disabled. Default Variation served";
+            evaluationReason = "Default Variation served. Because the flag is disabled.";
 
         } else if (!checkDependencies(flag, user)) {
 
@@ -73,13 +74,14 @@ public class Evaluator {
 
             variationToServe = flag.getOffVariation();
 
-            evaluationReason = "Prerequisite failed. Default Variation served";
+            evaluationReason = "Default Variation served. Because Pre-requisite failed. ";
 
         } else if ((variationToServe = getVariationIfUserInAllowList(flag, user)) != null) {
 
-            logger.info("USER_IN_ALLOWLIST for flag {}, VARIATION {} is served to user {}", flag.getKey(), variationToServe, user.getId());
+            logger.info("USER_IN_TARGET_USER for flag {}, VARIATION {} is served to user {}",
+                    flag.getKey(), variationToServe, user.getId());
 
-            evaluationReason = "User is in Target Individual Users List";
+            evaluationReason = "Target User rules matched for identity: " + user.getId();
 
         } else {
             int bucketNumber = getBucket(user.getId(), flag.getKey());
@@ -91,14 +93,12 @@ public class Evaluator {
                     variationToServe = getVariationToServeByRule(rule, bucketNumber);
 
                     logger.debug(
-                            "RULE_MATCHED for flag {}, {} variation is served to user {}",
+                            "RULE_MATCHED for flag {}, {} Target Rule is served to user {}",
                             flag.getKey(),
                             variationToServe.getKey(),
                             user.getId()
                     );
-
-                    evaluationReason = "Targeting Rule matched";
-
+                    evaluationReason = "Targeting Rule (priority #" + rule.getPriority() + ") matched.";
                     break;
                 }
             }
@@ -109,13 +109,14 @@ public class Evaluator {
 
                 variationToServe = getVariationToServeByRule(defaultRule, bucketNumber);
                 logger.debug(
-                        "RULE_NOT_MATCHED for flag {}, {} variation is served to user {}",
+                        "RULE_NOT_MATCHED for flag {}, {} Default Rule is served to user {}",
                         flag.getKey(),
                         variationToServe.getKey(),
                         user.getId()
                 );
 
-                evaluationReason = "Default Rule Served";
+                evaluationReason = "Default Rule served. This is because the flag is Enabled and Target User and " +
+                        "Targeting Rules didn't match.";
             }
         }
 
