@@ -74,6 +74,11 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             throw new IllegalArgumentException("flagKey must not be null or empty: " + flagKey);
         }
 
+        if (identity != null && !identity.matches("\\S+")) {
+            throw new IllegalArgumentException("identity must be a string and cannot contain any whitespace " +
+                    "characters: " + identity);
+        }
+
         if (shutdownInitiated.get()) {
             logger.debug("Asked to evaluate flag {} but shutdown already initiated on the client", flagKey);
             return UnlaunchConstants.getControlFeatureByName(flagKey);

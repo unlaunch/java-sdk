@@ -199,6 +199,17 @@ public class DefaultUnlaunchClientTest {
         Assert.assertTrue(client.isReady());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testWhen_GetVariationIsCalledWithInvalidIdentity_ItThrowsException() {
+
+        DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
+                Boolean.TRUE::booleanValue);
+
+       client.getVariation(UUID.randomUUID().toString(), "invalid identityWithSpaceInIt");
+
+    }
+
     @Test
     public void testIsInitializedReturnsFalseWhenClientIsNotReady()  {
         final CountDownLatch latchThatCloses = new CountDownLatch(1);
