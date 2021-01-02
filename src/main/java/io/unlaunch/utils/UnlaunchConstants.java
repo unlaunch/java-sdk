@@ -21,4 +21,11 @@ public class UnlaunchConstants {
         return UnlaunchFeature.create(flagKey, "", null,
                 "Unable to retrieve feature. Returning control variation" );
     }
+
+    public static final String getSdkKeyHelpMessage() {
+        return "To obtain the SDK key for your project, please sign in to the Unlaunch Console at " +
+                "https://app.unlaunch.io  Then on the right sidebar, click on 'Settings'. From the 'Projects' tab, " +
+                "Copy the 'SERVER_KEY' for the environment you want to connect to, and provide it to this SDK. For " +
+                "more information, see this: https://docs.unlaunch.io/docs/sdks/sdk-keys";
+    }
 }

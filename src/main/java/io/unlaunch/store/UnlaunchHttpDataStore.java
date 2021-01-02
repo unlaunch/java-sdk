@@ -5,6 +5,7 @@ import io.unlaunch.engine.FeatureFlag;
 import io.unlaunch.UnlaunchRestWrapper;
 import io.unlaunch.engine.JsonObjectConversionHelper;
 import io.unlaunch.exceptions.UnlaunchHttpException;
+import io.unlaunch.utils.UnlaunchConstants;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -84,10 +85,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                     logger.error("HTTP error downloading features: {} - {}", resBodyJson.get("data"), httpStatus);
                     if (httpStatus.equals("403")) {
                         logger.info("The SDK key you provided was rejected by the server and no data was " +
-                                "returned. All variation evaluations will return 'control'. You must use the correct " +
-                                "SDK key for the project and environment you're connecting to. For more " +
-                                "information on how to obtain right SDK keys, see: " +
-                                "https://docs.unlaunch.io/docs/sdks/sdk-keys");
+                                "returned. All variation evaluations will return 'control'. " + UnlaunchConstants.getSdkKeyHelpMessage());
                     }
                 }
             } else {

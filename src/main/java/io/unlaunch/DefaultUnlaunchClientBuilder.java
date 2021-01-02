@@ -150,8 +150,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClient build() {
         if (sdkKey != null && !sdkKey.isEmpty()) {
             if (!sdkKey.startsWith("prod")) {
-                logger.info("SDK key doesn't appear to be for production environment. Using aggressive settings to " +
-                        "poll and sync events so data appears on Unlaunch Console faster.");
+                logger.info("SDK key doesn't appear to be for production environment. Using relaxed settings to " +
+                        "poll and sync events more frequently so changes sync faster.");
                 loadPreProductionDefaults();
             }
         }
@@ -196,7 +196,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             dataStore = refreshableDataStoreProvider.getDataStore();
         } catch (Exception e) {
             logger.error("Unable to download features and init. Make sure you're using the " +
-                    "correct SDK Key. We'll retry again but this error  is usually not recoverable.");
+                    "correct SDK Key. We'll retry again but this error  is usually not recoverable. ");
         }
 
         // This is currently not is use; we'll use this for event tracking
@@ -277,7 +277,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     String s = System.getenv(UnlaunchConstants.SDK_KEY_ENV_VARIABLE_NAME);
                     if (Strings.isNullOrEmpty(s)) {
                         throw new IllegalArgumentException("sdkKey cannot be null or empty. Must be supplied to the " +
-                                "builder or set as an environment variable.");
+                                "builder or set as an environment variable. " + UnlaunchConstants.getSdkKeyHelpMessage());
                     } else {
                         logger.info("Setting SDK Key read from environment variable");
                         sdkKey = s;
