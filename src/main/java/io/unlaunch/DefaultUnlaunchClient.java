@@ -1,5 +1,8 @@
 package io.unlaunch;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -100,7 +103,15 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         }
 
         if (flag == null) {
-            logger.warn("UnlaunchFeature '{}' not found in the data store. Returning 'control' variation", flagKey);
+
+            List<String> listFlags = new LinkedList<>();
+            for (FeatureFlag f: dataStore.getAllFlags()) {
+                listFlags.add(f.getKey());
+            }
+            String result = String.join(",", listFlags);
+
+            logger.warn("Feature '{}' not found in the data store. Returning 'control' variation. Flags in local " +
+                            "store [{}]", flagKey, result);
             return UnlaunchFeature.create(flagKey, UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, null,
                     "flag was not found in the in-memory cache");
         }
