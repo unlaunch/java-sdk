@@ -87,6 +87,11 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
             return UnlaunchConstants.getControlFeatureByName(flagKey);
         }
 
+        if (!isReady()) {
+            logger.warn("the SDK is not ready. Returning the SDK default 'control' as variation which may not give the right result");
+            return UnlaunchConstants.getControlFeatureByName(flagKey);
+        }
+
         UnlaunchUser user;
         if (attributes == null) {
             user = UnlaunchUser.create(identity);
