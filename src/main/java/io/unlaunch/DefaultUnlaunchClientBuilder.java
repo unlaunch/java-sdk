@@ -10,6 +10,8 @@ import io.unlaunch.utils.UnlaunchConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,6 +59,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public static int MIN_METRICS_QUEUE_SIZE = 100;
     public static int MIN_CONNECTION_TIMEOUT_MILLIS = 1000;
     public static int MIN_READOUT_TIMEOUT_MILLIS = 1000;
+
+    private static final Map<String, UnlaunchClient> Clients = new ConcurrentHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -167,10 +171,19 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             }
         } else {
             client = createDefaultClient();
+            check4duplicatedClient(client);
         }
 
         logger.info("client built with following parameters {}", getConfigurationAsPrintableString());
         return client;
+    }
+
+    private void check4duplicatedClient(UnlaunchClient client) {
+        if (Clients.containsKey(sdkKey)) {
+            logger.warn("Duplicated Unlaunch client is created for sdk key {}. Consider creating only one client per sdkKey.", sdkKey);
+        } else {
+            Clients.put(sdkKey, client);
+        }
     }
 
     private UnlaunchClient createDefaultClient() {
