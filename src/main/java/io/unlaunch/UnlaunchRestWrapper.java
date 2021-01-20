@@ -3,6 +3,7 @@ package io.unlaunch;
 import io.unlaunch.exceptions.UnlaunchHttpException;
 import java.util.Date;
 
+import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public final class UnlaunchRestWrapper {
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchRestWrapper.class);
 
     UnlaunchRestWrapper(String sdkKey, String host, String apiPath,  long connectionTimeOutMs, long readTimeOutMs) {
-        ClientConfig configuration = new ClientConfig();
+        ClientConfig configuration = new ClientConfig().connectorProvider(new ApacheConnectorProvider());
         configuration.property(ClientProperties.CONNECT_TIMEOUT, (int)connectionTimeOutMs);
         configuration.property(ClientProperties.READ_TIMEOUT, (int)readTimeOutMs);
         client = ClientBuilder.newClient(configuration);
