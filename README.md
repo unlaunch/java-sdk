@@ -14,6 +14,7 @@ The Unlaunch Java SDK provides a Java API to access Unlaunch feature flags and o
 - [Official Guide](https://docs.unlaunch.io/docs/sdks/java-sdk)
 - [Javadocs](https://javadoc.io/doc/io.unlaunch.sdk/unlaunch-java-sdk/latest/index.html)
 - [MVN Repository](https://mvnrepository.com/artifact/io.unlaunch.sdk/unlaunch-java-sdk)
+- [Sonatype](https://oss.sonatype.org/#nexus-search;quick~io.unlaunch.sdk)
 
 ### Compatibility
 Unlaunch Java SDK requires Java 8 or higher.
@@ -138,7 +139,7 @@ git tag 0.0.3
 git push origin --tags
 ```
 
-Then update `pom.xml` version to be `0.0.4-SNAPSHOT`. Commit your code to `develop` and PR into `main`.
+You **must** then update `pom.xml` version to be `0.0.4-SNAPSHOT`. Commit your code to `develop` and PR into `main`.
 
 Alternatively, you can also use the Maven Release plugin to deploy directly from your machine. 
  
