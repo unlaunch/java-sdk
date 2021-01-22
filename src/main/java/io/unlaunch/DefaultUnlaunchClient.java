@@ -74,7 +74,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
 
     private UnlaunchFeature evaluate(String flagKey, String identity, UnlaunchAttribute ... attributes) {
         if (flagKey == null || flagKey.isEmpty()) {
-            throw new IllegalArgumentException("flagKey must not be null or empty: " + flagKey);
+            throw new IllegalArgumentException("Argument flagKey must not be null or empty: " + flagKey);
         }
 
         if (identity != null && !identity.matches("\\S+")) {
@@ -88,7 +88,8 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         }
 
         if (!isReady()) {
-            logger.warn("the SDK is not ready. Returning the SDK default 'control' as variation which may not give the right result");
+            logger.warn("The SDK is not ready. Returning the SDK default 'control' as variation which may not give " +
+                    "the right result");
             return UnlaunchConstants.getControlFeatureByName(flagKey);
         }
 

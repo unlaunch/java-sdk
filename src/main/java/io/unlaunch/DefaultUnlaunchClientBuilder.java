@@ -158,6 +158,17 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                         "poll and sync events more frequently so changes sync faster.");
                 loadPreProductionDefaults();
             }
+
+            if (sdkKey.contains("-mob-")) {
+                logger.warn("You are using 'Mobile / App SDK Key'. The SDK will only be able to download flags that " +
+                        "have the client-side option enabled. If you are running this application on your own " +
+                        "servers, use the 'Server Key' to fetch all features flags. {}", UnlaunchConstants.getSdkKeyHelpMessage());
+            } else if (sdkKey.contains("-public-")) {
+                logger.warn("You are using 'Browser / Public SDK Key'. The SDK will only be able to download flags that " +
+                        "have the client-side option enabled. If you are running this application on your own " +
+                        "servers, use the 'Server Key' to fetch all features flags. {}",
+                        UnlaunchConstants.getSdkKeyHelpMessage());
+            }
         }
 
         validateConfigurationParameters();
@@ -171,14 +182,14 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             }
         } else {
             client = createDefaultClient();
-            check4duplicatedClient(client);
+            checkIfClientAlreadyCreated(client);
         }
 
-        logger.info("client built with following parameters {}", getConfigurationAsPrintableString());
+        logConfigurationOptions();
         return client;
     }
 
-    private void check4duplicatedClient(UnlaunchClient client) {
+    private void checkIfClientAlreadyCreated(UnlaunchClient client) {
         if (Clients.containsKey(sdkKey)) {
             logger.warn("Duplicated Unlaunch client is created for sdk key {}. Consider creating only one client per sdkKey.", sdkKey);
         } else {
@@ -195,12 +206,13 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper restWrapperForFlagApi =
                 UnlaunchRestWrapper.create(sdkKey, host, flagApiPath, connectionTimeoutMs, readTimeoutMs);
-        final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
-         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
+        final CountDownLatch initialSyncCompleteLatch = new CountDownLatch(1);
+        final AtomicBoolean initialSyncSuccessful = new AtomicBoolean(false);
+
         RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
                 restWrapperForFlagApi,
-                initialDownloadDoneLatch,
-                downloadSuccessful,
+                initialSyncCompleteLatch,
+                initialSyncSuccessful,
                 pollingIntervalInSeconds);
 
         // Try to make sure there are no errors or abandon object construction
@@ -239,7 +251,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         return  DefaultUnlaunchClient.create(
                 dataStore, eventHandler, variationsCountEventHandler, impressionsEventHandler,
-                initialDownloadDoneLatch, downloadSuccessful,
+                initialSyncCompleteLatch, initialSyncSuccessful,
                 () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();
@@ -258,6 +270,25 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     }
                     return true;
                 });
+    }
+
+    private void logConfigurationOptions() {
+        String partiallyObfuscatedSdkKey = null;
+
+        if (sdkKey != null && sdkKey.isEmpty()) {
+            int i = sdkKey.indexOf("-");
+            i = sdkKey.indexOf("-", i+1); // Second -
+            partiallyObfuscatedSdkKey = sdkKey.substring(0, i+2);
+        }
+
+
+        logger.info("UnlaunchClient created. Configuration [sdkKey = {}-*, offlineMode = {}, pollingInterval = {} seconds,  " +
+                        "connectionTimeout = {} milliseconds, readTimeout = {} milliseconds, " +
+                        "metricsFlushInterval = {} seconds, metricsQueueSize = {}, eventsFlushInterval = {}, " +
+                        "eventsQueueSize = {} ]",
+                partiallyObfuscatedSdkKey, isOffline, pollingIntervalTimeUnit.toSeconds(pollingInterval),
+                connectionTimeoutMs, readTimeoutMs, metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval),
+                metricsQueueSize, eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval), eventsQueueSize);
     }
 
     /**
