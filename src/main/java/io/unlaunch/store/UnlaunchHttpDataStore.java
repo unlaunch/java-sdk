@@ -81,6 +81,8 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                 if (!initialSyncSuccessful.get()) {
                     logger.info("Initial sync was successful and the client is ready. Synced {} flags", flagsMap.size());
                     initialSyncSuccessful.set(true);
+                } else {
+                    logger.info("Synced latest data. There are {} flags in memory.", flagsMap.size());
                 }
             } else if (response.getStatus() == 403) {
                 logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
