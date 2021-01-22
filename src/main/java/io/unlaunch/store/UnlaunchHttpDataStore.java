@@ -42,28 +42,28 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     private final CountDownLatch gate;
     private final JsonObjectConversionHelper flagService = new JsonObjectConversionHelper();
     private final JSONParser parser = new JSONParser();
-    private final AtomicBoolean downloadSuccessful;
+    private final AtomicBoolean initialSyncSuccessful;
     private final AtomicInteger numHttpCalls = new AtomicInteger(0);
 
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchHttpDataStore.class);
 
-    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean downloadSuccessful) {
+    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean initialSyncSuccessful) {
         this.restWrapper = restWrapper;
         this.gate = gate;
-        this.downloadSuccessful = downloadSuccessful;
+        this.initialSyncSuccessful = initialSyncSuccessful;
         this.flagsMap = new ConcurrentHashMap<>();
     }
 
     @Override
     public void run() {
         numHttpCalls.incrementAndGet();
-        boolean fetchedSuccessfully = false;
         Object obj = null;
 
         try {
             Response response = restWrapper.get();
             if (response.getStatus() == 304) {
-                logger.debug("synced flags with the server. No update. In-memory data store has {} flags", flagsMap.size());
+                logger.debug("synced flags with the server. No update. In memory data store has {} flags",
+                        flagsMap.size());
             } else if (response.getStatus() == 200) {
                 obj = parser.parse(response.readEntity(String.class));
                 JSONObject resBodyJson = (JSONObject) obj;
@@ -78,10 +78,14 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
                 unlaunchFlags.forEach(flag -> flagsMap.put(flag.getKey(), flag));
                 logger.debug("downloaded {} features from the server", unlaunchFlags.size());
 
-                fetchedSuccessfully = true;
+                if (!initialSyncSuccessful.get()) {
+                    logger.info("Initial sync was successful and the client is ready. Synced {} flags", flagsMap.size());
+                    initialSyncSuccessful.set(true);
+                }
             } else if (response.getStatus() == 403) {
-                logger.info("The SDK key you provided was rejected by the server and no data was " +
-                        "returned. All variation evaluations will return 'control'. " + UnlaunchConstants.getSdkKeyHelpMessage());
+                logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
+                        "you should check to make sure you are using the correct SDK Key. All feature flag " +
+                        "evaluations will return control. {}",  UnlaunchConstants.getSdkKeyHelpMessage());
             }
             else {
                 logger.error("HTTP error downloading features: {} - {}", response.readEntity(String.class), response.getStatus());
@@ -92,13 +96,9 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
             logger.warn("unable to parse flags response that the API returned: {}. Error {}", obj, pex.getMessage());
         } catch (Exception e) {
             logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
+        } finally {
+            gate.countDown(); // unblock the client. For now, anything unblocks.
         }
-
-        if (!downloadSuccessful.get() && fetchedSuccessfully) {
-            downloadSuccessful.set(true);
-        }
-
-        gate.countDown();
     }
 
     @Override

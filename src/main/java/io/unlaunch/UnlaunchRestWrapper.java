@@ -74,10 +74,6 @@ public final class UnlaunchRestWrapper {
         }
     }
 
-    public Date getLastModified() {
-        return lastModified;
-    }
-
     @Override
     public String toString() {
         return "UnlaunchRestWrapper for URI: " + apiWebTarget.getUri();
