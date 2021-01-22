@@ -24,19 +24,19 @@ public final class UnlaunchRestWrapper {
 
     private final Client client;
     private final WebTarget apiWebTarget;
-    private final Invocation.Builder invocationBuilder;
+    private final String sdkKey;
     private Date lastModified;
     
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchRestWrapper.class);
 
     UnlaunchRestWrapper(String sdkKey, String host, String apiPath,  long connectionTimeOutMs, long readTimeOutMs) {
+        this.sdkKey = sdkKey;
         ClientConfig configuration = new ClientConfig();
         configuration.property(ClientProperties.CONNECT_TIMEOUT, (int)connectionTimeOutMs);
         configuration.property(ClientProperties.READ_TIMEOUT, (int)readTimeOutMs);
         client = ClientBuilder.newClient(configuration);
 
         apiWebTarget = client.target(host).path(apiPath);
-        invocationBuilder = apiWebTarget.request(MediaType.APPLICATION_JSON).header("X-Api-Key", sdkKey);
     }
 
     public static UnlaunchRestWrapper create(
@@ -51,6 +51,7 @@ public final class UnlaunchRestWrapper {
      */
     public Response post(Entity<?> entity) {
         try {
+            Invocation.Builder invocationBuilder = apiWebTarget.request(MediaType.APPLICATION_JSON).header("X-Api-Key", sdkKey);
             return invocationBuilder.post(entity);
         } catch ( ProcessingException  | WebApplicationException ex) {
             logger.warn("unable to perform HTTP POST action on URL {} for entity {}. Error was {}",
@@ -59,20 +60,18 @@ public final class UnlaunchRestWrapper {
         }
     }
 
-    public String get(Class<String> responseType) {
+    public Response get() {
         try {
+            Invocation.Builder invocationBuilder = apiWebTarget.request(MediaType.APPLICATION_JSON).header("X-Api-Key", sdkKey);
             Response response = invocationBuilder.header("If-Modified-Since", lastModified).get();
             lastModified = response.getLastModified();
-            return response.readEntity(responseType);
+
+            return response;
         } catch ( ProcessingException  | WebApplicationException ex) {
             logger.warn("unable to perform HTTP GET action on URL {}. Error was: {}", apiWebTarget.getUri(),
                     ex.getMessage());
             throw new UnlaunchHttpException("unable to perform get action on entity", ex);
         }
-    }
-
-    public Date getLastModified() {
-        return lastModified;
     }
 
     @Override

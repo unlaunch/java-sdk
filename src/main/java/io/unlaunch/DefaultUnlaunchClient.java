@@ -1,5 +1,8 @@
 package io.unlaunch;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -71,7 +74,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
 
     private UnlaunchFeature evaluate(String flagKey, String identity, UnlaunchAttribute ... attributes) {
         if (flagKey == null || flagKey.isEmpty()) {
-            throw new IllegalArgumentException("flagKey must not be null or empty: " + flagKey);
+            throw new IllegalArgumentException("Argument flagKey must not be null or empty: " + flagKey);
         }
 
         if (identity != null && !identity.matches("\\S+")) {
@@ -81,6 +84,12 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
 
         if (shutdownInitiated.get()) {
             logger.debug("Asked to evaluate flag {} but shutdown already initiated on the client", flagKey);
+            return UnlaunchConstants.getControlFeatureByName(flagKey);
+        }
+
+        if (!isReady()) {
+            logger.warn("The SDK is not ready. Returning the SDK default 'control' as variation which may not give " +
+                    "the right result");
             return UnlaunchConstants.getControlFeatureByName(flagKey);
         }
 
@@ -100,7 +109,15 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         }
 
         if (flag == null) {
-            logger.warn("UnlaunchFeature '{}' not found in the data store. Returning 'control' variation", flagKey);
+
+            List<String> listFlags = new LinkedList<>();
+            for (FeatureFlag f: dataStore.getAllFlags()) {
+                listFlags.add(f.getKey());
+            }
+            String result = String.join(",", listFlags);
+
+            logger.warn("Feature '{}' not found in the data store. Returning 'control' variation. Flags in local " +
+                            "store [{}]", flagKey, result);
             return UnlaunchFeature.create(flagKey, UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, null,
                     "flag was not found in the in-memory cache");
         }

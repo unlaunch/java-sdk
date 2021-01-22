@@ -149,7 +149,7 @@ Helpful guides:
 ## About Unlaunch
 Unlaunch is a Feature Release Platform for engineering teams. Our mission is allow engineering teams of all
  sizes to release features safely and quickly to delight their customers. To learn more about Unlaunch, please visit
-  [www.unlaunch.io](www.unlaunch.io). You can sign up to get started for free at [https://app.unlaunch.io/signup
+  [www.unlaunch.io](https://unlaunch.io). You can sign up to get started for free at [https://app.unlaunch.io/signup
   ](https://app.unlaunch.io/signup).
 
 ## FAQs

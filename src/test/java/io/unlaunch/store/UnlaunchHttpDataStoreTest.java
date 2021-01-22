@@ -9,13 +9,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.ws.rs.core.Response;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 public class UnlaunchHttpDataStoreTest {
@@ -23,7 +23,7 @@ public class UnlaunchHttpDataStoreTest {
     @Test
     public void testLatchIsClosedWhenThereIsAnHttpError() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenThrow(new UnlaunchHttpException());
+        when(unlaunchRestWrapper.get()).thenThrow(new UnlaunchHttpException());
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
         AtomicBoolean atomicBoolean = new AtomicBoolean();
 
@@ -39,7 +39,10 @@ public class UnlaunchHttpDataStoreTest {
     @Test
     public void testCountdownLatchIsDecrementedOnServerResponse() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        Response response = Mockito.mock(Response.class);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(String.class)).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get()).thenReturn(response);
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
         AtomicBoolean atomicBoolean = new AtomicBoolean();
 
@@ -55,7 +58,10 @@ public class UnlaunchHttpDataStoreTest {
     @Test
     public void testParsedFlagDataWhenSuccessfullyDownloaded() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        Response response = Mockito.mock(Response.class);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(String.class)).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get()).thenReturn(response);
         CountDownLatch latch = Mockito.mock(CountDownLatch.class);
         AtomicBoolean atomicBoolean = new AtomicBoolean();
 

@@ -10,6 +10,8 @@ import io.unlaunch.utils.UnlaunchConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -57,6 +59,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public static int MIN_METRICS_QUEUE_SIZE = 100;
     public static int MIN_CONNECTION_TIMEOUT_MILLIS = 1000;
     public static int MIN_READOUT_TIMEOUT_MILLIS = 1000;
+
+    private static final Map<String, UnlaunchClient> Clients = new ConcurrentHashMap<>();
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultUnlaunchClientBuilder.class);
 
@@ -150,9 +154,20 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     public UnlaunchClient build() {
         if (sdkKey != null && !sdkKey.isEmpty()) {
             if (!sdkKey.startsWith("prod")) {
-                logger.info("SDK key doesn't appear to be for production environment. Using aggressive settings to " +
-                        "poll and sync events so data appears on Unlaunch Console faster.");
+                logger.info("SDK key doesn't appear to be for production environment. Using relaxed settings to " +
+                        "poll and sync events more frequently so changes sync faster.");
                 loadPreProductionDefaults();
+            }
+
+            if (sdkKey.contains("-mob-")) {
+                logger.warn("You are using 'Mobile / App SDK Key'. The SDK will only be able to download flags that " +
+                        "have the client-side option enabled. If you are running this application on your own " +
+                        "servers, use the 'Server Key' to fetch all features flags. {}", UnlaunchConstants.getSdkKeyHelpMessage());
+            } else if (sdkKey.contains("-public-")) {
+                logger.warn("You are using 'Browser / Public SDK Key'. The SDK will only be able to download flags that " +
+                        "have the client-side option enabled. If you are running this application on your own " +
+                        "servers, use the 'Server Key' to fetch all features flags. {}",
+                        UnlaunchConstants.getSdkKeyHelpMessage());
             }
         }
 
@@ -167,10 +182,19 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             }
         } else {
             client = createDefaultClient();
+            checkIfClientAlreadyCreated(client);
         }
 
-        logger.info("client built with following parameters {}", getConfigurationAsPrintableString());
+        logConfigurationOptions();
         return client;
+    }
+
+    private void checkIfClientAlreadyCreated(UnlaunchClient client) {
+        if (Clients.containsKey(sdkKey)) {
+            logger.warn("Duplicated Unlaunch client is created for sdk key {}. Consider creating only one client per sdkKey.", sdkKey);
+        } else {
+            Clients.put(sdkKey, client);
+        }
     }
 
     private UnlaunchClient createDefaultClient() {
@@ -182,12 +206,13 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         UnlaunchRestWrapper restWrapperForFlagApi =
                 UnlaunchRestWrapper.create(sdkKey, host, flagApiPath, connectionTimeoutMs, readTimeoutMs);
-        final CountDownLatch initialDownloadDoneLatch = new CountDownLatch(1);
-         final AtomicBoolean downloadSuccessful = new AtomicBoolean(false);
+        final CountDownLatch initialSyncCompleteLatch = new CountDownLatch(1);
+        final AtomicBoolean initialSyncSuccessful = new AtomicBoolean(false);
+
         RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
                 restWrapperForFlagApi,
-                initialDownloadDoneLatch,
-                downloadSuccessful,
+                initialSyncCompleteLatch,
+                initialSyncSuccessful,
                 pollingIntervalInSeconds);
 
         // Try to make sure there are no errors or abandon object construction
@@ -196,7 +221,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             dataStore = refreshableDataStoreProvider.getDataStore();
         } catch (Exception e) {
             logger.error("Unable to download features and init. Make sure you're using the " +
-                    "correct SDK Key. We'll retry again but this error  is usually not recoverable.");
+                    "correct SDK Key. We'll retry again but this error  is usually not recoverable. ");
         }
 
         // This is currently not is use; we'll use this for event tracking
@@ -226,7 +251,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
         return  DefaultUnlaunchClient.create(
                 dataStore, eventHandler, variationsCountEventHandler, impressionsEventHandler,
-                initialDownloadDoneLatch, downloadSuccessful,
+                initialSyncCompleteLatch, initialSyncSuccessful,
                 () -> {
                     if (refreshableDataStoreProvider != null) {
                         refreshableDataStoreProvider.close();
@@ -245,6 +270,25 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     }
                     return true;
                 });
+    }
+
+    private void logConfigurationOptions() {
+        String partiallyObfuscatedSdkKey = null;
+
+        if (sdkKey != null && sdkKey.isEmpty()) {
+            int i = sdkKey.indexOf("-");
+            i = sdkKey.indexOf("-", i+1); // Second -
+            partiallyObfuscatedSdkKey = sdkKey.substring(0, i+2);
+        }
+
+
+        logger.info("UnlaunchClient created. Configuration [sdkKey = {}-*, offlineMode = {}, pollingInterval = {} seconds,  " +
+                        "connectionTimeout = {} milliseconds, readTimeout = {} milliseconds, " +
+                        "metricsFlushInterval = {} seconds, metricsQueueSize = {}, eventsFlushInterval = {}, " +
+                        "eventsQueueSize = {} ]",
+                partiallyObfuscatedSdkKey, isOffline, pollingIntervalTimeUnit.toSeconds(pollingInterval),
+                connectionTimeoutMs, readTimeoutMs, metricsFlushIntervalTimeUnit.toSeconds(metricsFlushInterval),
+                metricsQueueSize, eventsFlushIntervalTimeUnit.toSeconds(eventsFlushInterval), eventsQueueSize);
     }
 
     /**
@@ -277,7 +321,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                     String s = System.getenv(UnlaunchConstants.SDK_KEY_ENV_VARIABLE_NAME);
                     if (Strings.isNullOrEmpty(s)) {
                         throw new IllegalArgumentException("sdkKey cannot be null or empty. Must be supplied to the " +
-                                "builder or set as an environment variable.");
+                                "builder or set as an environment variable. " + UnlaunchConstants.getSdkKeyHelpMessage());
                     } else {
                         logger.info("Setting SDK Key read from environment variable");
                         sdkKey = s;

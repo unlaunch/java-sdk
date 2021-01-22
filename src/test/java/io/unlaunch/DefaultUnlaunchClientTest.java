@@ -58,7 +58,7 @@ public class DefaultUnlaunchClientTest {
     @Test
     public void tesWhenFlagIsDisabledAndOffVariationIsServed() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, new AtomicBoolean(true),
                 Boolean.TRUE::booleanValue);
 
         final String flagKey = "flag123";
@@ -82,6 +82,7 @@ public class DefaultUnlaunchClientTest {
 
         when(unlaunchHttpDataStore.getFlag(any())).thenReturn(null);
 
+
         Assert.assertEquals(UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, client.getVariation("unknownflag",
                 UUID.randomUUID().toString()));
 
@@ -102,8 +103,9 @@ public class DefaultUnlaunchClientTest {
     @Test
     public void testFlagWhenFlagIsDisabledAndOffVariationIsServed() {
         DefaultUnlaunchClient client = DefaultUnlaunchClient.create(refreshableDataStoreProvider.getDataStore(),
-                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, atomicBoolean,
+                eventHandler, flagInvocationMetricHandler, impressionsEventHandler, downLatch, new AtomicBoolean(true),
                 Boolean.TRUE::booleanValue);
+
 
         final String flagKey = "flag123";
 
@@ -116,6 +118,7 @@ public class DefaultUnlaunchClientTest {
         final String VALUE ="RESULT";
         when(variation.getKey()).thenReturn(VALUE);
         when(flag.getOffVariation()).thenReturn(variation);
+
 
         final String result = client.getVariation(flagKey, UUID.randomUUID().toString());
         Assert.assertEquals(VALUE, result);
@@ -178,10 +181,10 @@ public class DefaultUnlaunchClientTest {
 
         // After shutdown, the variation that's returned must be empty string
         v = client.getVariation(flagKey, UUID.randomUUID().toString());
-        Assert.assertTrue(v.isEmpty());
+        Assert.assertEquals(UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, v);
 
        UnlaunchFeature f = client.getFeature(flagKey, UUID.randomUUID().toString());
-        Assert.assertTrue(v.isEmpty());
+        Assert.assertEquals(UnlaunchConstants.FLAG_DEFAULT_RETURN_TYPE, v);
     }
 
     @Test
