@@ -13,6 +13,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,45 +58,38 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public void run() {
         numHttpCalls.incrementAndGet();
         boolean fetchedSuccessfully = false;
-        String restApiResponse = null;
+        Object obj = null;
 
         try {
-            restApiResponse = restWrapper.get(String.class);
-
-            if (restApiResponse != null && !restApiResponse.isEmpty()) {
-                Object obj = parser.parse(restApiResponse);
+            Response response = restWrapper.get();
+            if (response.getStatus() == 304) {
+                logger.debug("synced flags with the server. No update. In-memory data store has {} flags", flagsMap.size());
+            } else if (response.getStatus() == 200) {
+                obj = parser.parse(response.readEntity(String.class));
                 JSONObject resBodyJson = (JSONObject) obj;
 
-                JSONObject statusJson = (JSONObject)resBodyJson.get("status");
-                String httpStatus = (String)  statusJson.get("code");
+                JSONObject data = (JSONObject) resBodyJson.get("data");
+                projectNameRef.set((String)data.get("projectName"));
+                environmentNameRef.set((String)data.get("envName"));
+                JSONArray flags = (JSONArray) data.get("flags");
 
-                if (httpStatus.equals("200")) {
-                    JSONObject data = (JSONObject) resBodyJson.get("data");
-                    projectNameRef.set((String)data.get("projectName"));
-                    environmentNameRef.set((String)data.get("envName"));
-                    JSONArray flags = (JSONArray) data.get("flags");
+                List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
 
-                    List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
+                unlaunchFlags.forEach(flag -> flagsMap.put(flag.getKey(), flag));
+                logger.debug("downloaded {} features from the server", unlaunchFlags.size());
 
-                    unlaunchFlags.forEach(flag -> flagsMap.put(flag.getKey(), flag));
-                    logger.debug("downloaded {} features from the server", unlaunchFlags.size());
-
-                    fetchedSuccessfully = true;
-                } else {
-                    logger.error("HTTP error downloading features: {} - {}", resBodyJson.get("data"), httpStatus);
-                    if (httpStatus.equals("403")) {
-                        logger.info("The SDK key you provided was rejected by the server and no data was " +
-                                "returned. All variation evaluations will return 'control'. " + UnlaunchConstants.getSdkKeyHelpMessage());
-                    }
-                }
-            } else {
-                logger.debug("synced flags with the server. No update. In-memory data store has {} flags",
-                        flagsMap.size());
+                fetchedSuccessfully = true;
+            } else if (response.getStatus() == 403) {
+                logger.info("The SDK key you provided was rejected by the server and no data was " +
+                        "returned. All variation evaluations will return 'control'. " + UnlaunchConstants.getSdkKeyHelpMessage());
+            }
+            else {
+                logger.error("HTTP error downloading features: {} - {}", response.readEntity(String.class), response.getStatus());
             }
         } catch ( UnlaunchHttpException ex) {
             logger.warn("unable to fetch flags using REST API " + ex.getMessage());
         } catch (ParseException pex) {
-            logger.warn("unable to parse flags response that the API returned: {}. Error {}", restApiResponse);
+            logger.warn("unable to parse flags response that the API returned: {}. Error {}", obj, pex.getMessage());
         } catch (Exception e) {
             logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
         }

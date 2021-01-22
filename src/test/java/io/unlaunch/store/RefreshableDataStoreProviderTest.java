@@ -10,10 +10,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.ws.rs.core.Response;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 /**
@@ -26,7 +26,10 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testThatOnlySingletonInstanceIsCreated() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        Response response = Mockito.mock(Response.class);
+        when(response.getStatus()).thenReturn(200);
+        when(response.readEntity(String.class)).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
+        when(unlaunchRestWrapper.get()).thenReturn(response);
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
@@ -45,7 +48,7 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testNoExceptionIsThrownWhenThereIsAProblem() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenThrow(new UnlaunchHttpException());
+        when(unlaunchRestWrapper.get()).thenThrow(new UnlaunchHttpException());
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
@@ -61,7 +64,7 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testDataStoreIsTriedRepeatedlyWhenThereAreErrors() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
-        when(unlaunchRestWrapper.get(any())).thenThrow(new UnlaunchHttpException());
+        when(unlaunchRestWrapper.get()).thenThrow(new UnlaunchHttpException());
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
@@ -76,5 +79,4 @@ public class RefreshableDataStoreProviderTest {
 
         Assert.assertTrue(dataStore.getNumberOfHttpCalls() >= 2);
     }
-
 }
