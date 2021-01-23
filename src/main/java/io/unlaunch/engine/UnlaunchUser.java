@@ -161,12 +161,6 @@ public class UnlaunchUser {
         } else if (value instanceof LocalDate) {
             LocalDate d = (LocalDate) value;
             return new UnlaunchDateTimeValue(d.atStartOfDay());
-        } else if (value instanceof LocalDateTime) {
-            LocalDateTime ld = (LocalDateTime) value;
-            return new UnlaunchDateTimeValue(ld);
-        } else if (value instanceof LocalDateTime) {
-            LocalDateTime d = (LocalDateTime) value;
-            return new UnlaunchDateTimeValue(d);
         } else if (value instanceof Set) {
             Set d = (Set) value;
             return new UnlaunchSetValue(d);
