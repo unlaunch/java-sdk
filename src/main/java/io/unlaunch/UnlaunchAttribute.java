@@ -50,7 +50,11 @@ public class UnlaunchAttribute {
         return create(key, new HashSet<>(value));
     }
 
-    public static UnlaunchAttribute  newNumber(String key, Number value) {
+    public static UnlaunchAttribute newNumber(String key, Number value) {
+        if (value == null) {
+            throw new IllegalArgumentException("number can not be null");
+        }
+
         return create(key, value);
     }
 
