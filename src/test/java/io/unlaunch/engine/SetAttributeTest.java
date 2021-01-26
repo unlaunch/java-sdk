@@ -116,6 +116,65 @@ public class SetAttributeTest {
         OffVariation();
     }
 
+    // Not All Of
+    @Test
+    public void Not_All_Of_EqualSets_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("user1");
+        userSet.add("user2");
+
+        List<String> values = new ArrayList<>();
+        values.add("user2");
+        values.add("user1");
+
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_All_Of_UserSetIsSuperset_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("user3");
+        userSet.add("user1");
+        userSet.add("user2");
+
+        List<String> values = new ArrayList<>();
+        values.add("user2");
+        values.add("user1");
+
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_All_Of_WhenUserSetIsSubset_ShouldMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("user2");
+
+        List<String> values = new ArrayList<>();
+        values.add("user2");
+        values.add("user1");
+
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+
+        OnVariation();
+    }
+
+    @Test
+    public void Not_All_Of_WhenUserSetIsEmpty_ShouldMatch() {
+        Set<String> userSet = new HashSet();
+
+        List<String> values = new ArrayList<>();
+        values.add("user2");
+        values.add("user1");
+
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+
+        OnVariation();
+    }
+
     // Any Of
     @Test
     public void Any_Of_EqualSets_ShouldMatch() {
@@ -209,6 +268,99 @@ public class SetAttributeTest {
         OffVariation();
     }
 
+    // Not Any Of
+    @Test
+    public void Not_Any_Of_EqualSets_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("2");
+
+        List<String> values = new ArrayList<>();
+        values.add("1");
+        values.add("2");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Any_Of_UserSetIsSuperset_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("3");
+        userSet.add("2");
+
+        List<String> values = new ArrayList<>();
+        values.add("1");
+        values.add("2");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Any_Of_UserSetIsSubSet_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("2");
+
+        List<String> values = new ArrayList<>();
+        values.add("1");
+        values.add("2");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Any_Of_UserSetIsSubSetUnordered_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("2");
+        userSet.add("3");
+        userSet.add("4");
+
+        List<String> values = new ArrayList<>();
+        values.add("3");
+        values.add("2");
+        values.add("1");
+        values.add("10");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Any_Of_UserSetIsDisjoint_ShouldMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("4");
+        userSet.add("5");
+
+        List<String> values = new ArrayList<>();
+        values.add("1");
+        values.add("2");
+        values.add("3");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OnVariation();
+    }
+
+    @Test
+    public void Not_Any_Of_UserSetIsEmpty_ShouldMatch() {
+        Set<String> userSet = new HashSet();
+
+        List<String> values = new ArrayList<>();
+        values.add("1");
+
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+
+        OnVariation();
+    }
+
     // Part Of
     @Test
     public void Part_Of_WhenEqualSets_ShouldMatch() {
@@ -255,6 +407,54 @@ public class SetAttributeTest {
         setCondition(Operator.IS_PART_OF, userSet, values);
 
         OnVariation();
+    }
+
+    // Not Part Of
+    @Test
+    public void Not_Part_Of_WhenEqualSets_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("2");
+
+        List<String> values = new ArrayList<>();
+        values.add("2");
+        values.add("1");
+
+        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Part_Of_WhenUserSetIsSuperset_ShouldMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("2");
+        userSet.add("3");
+
+        List<String> values = new ArrayList<>();
+        values.add("2");
+        values.add("1");
+
+        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
+
+        OffVariation();
+    }
+
+    @Test
+    public void Not_Part_Of_WhenUserSetIsSubset_ShouldNotMatch() {
+        Set<String> userSet = new HashSet();
+        userSet.add("1");
+        userSet.add("2");
+
+        List<String> values = new ArrayList<>();
+        values.add("2");
+        values.add("1");
+        values.add("3");
+
+        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
+
+        OffVariation();
     }
 
     // Equals

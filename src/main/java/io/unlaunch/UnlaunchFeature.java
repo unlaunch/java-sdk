@@ -67,6 +67,9 @@ public class UnlaunchFeature {
      * @return  {@link Map} of Key-Value configuration for the evaluated variation.
      */
     public Map<String, String> getVariationConfigAsMap() {
+        if (properties == null || properties.isEmpty()) {
+            return new HashMap<>();
+        }
         return new HashMap<>(properties);
     }
 
@@ -77,6 +80,9 @@ public class UnlaunchFeature {
      * @return  {@link UnlaunchDynamicConfig} for configuration (Key-Value)
      */
     public UnlaunchDynamicConfig getVariationConfig() {
+        if (properties == null || properties.isEmpty()) {
+            new DefaultUnlaunchDynamicConfig(null);
+        }
         return new DefaultUnlaunchDynamicConfig(Collections.unmodifiableMap(properties));
     }
 
@@ -104,6 +110,4 @@ public class UnlaunchFeature {
     public static UnlaunchFeature create(String flagKey, String variationKey, Map<String, String> properties) {
         return new UnlaunchFeature(flagKey, variationKey, "", properties);
     }
-
-
 }
