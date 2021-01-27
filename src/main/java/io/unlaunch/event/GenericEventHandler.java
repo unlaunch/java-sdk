@@ -17,9 +17,9 @@ final class GenericEventHandler extends AbstractEventHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GenericEventHandler.class);
 
-    GenericEventHandler(String name, UnlaunchRestWrapper restClientForEventsApi, long eventFlushIntervalInSeconds,
-                        int maxBufferSize) {
-        super(name, restClientForEventsApi, eventFlushIntervalInSeconds, maxBufferSize);
+    GenericEventHandler(String name, boolean enabled, UnlaunchRestWrapper
+            restClientForEventsApi, long eventFlushIntervalInSeconds, int maxBufferSize) {
+        super(name, enabled, restClientForEventsApi, eventFlushIntervalInSeconds, maxBufferSize);
     }
 
 }
