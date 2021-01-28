@@ -230,6 +230,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
                 UnlaunchRestWrapper.create(sdkKey, host, eventApiPath, connectionTimeoutMs, readTimeoutMs);
         EventHandler eventHandler = EventHandler.createGenericEventHandler(
                 "generic",
+                true,
                 eventsApiRestClient,
                 eventFlushIntervalInSeconds,
                 eventsQueueSize);
@@ -239,6 +240,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         EventHandler impressionsEventHandler =
                 EventHandler.createGenericEventHandler(
                 "metrics-impressions",
+                false,
                 impressionApiRestClient,
                 metricsFlushInterval,
                     metricsQueueSize);

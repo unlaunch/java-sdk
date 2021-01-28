@@ -1,6 +1,5 @@
 package io.unlaunch;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -170,7 +169,7 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
     }
 
     /**
-     * Close everything by calling close on providerss.
+     * Close everything by calling close on providers.
      *
      */
     @Override

@@ -6,14 +6,9 @@ import io.unlaunch.utils.MurmurHash3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -23,7 +18,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author jawad
  */
 public class Evaluator {
-    private static final String HASH_ALGO = "SHA-256";
     private static final Logger logger = LoggerFactory.getLogger(Evaluator.class);
 
     public UnlaunchFeature evaluate(FeatureFlag flag, UnlaunchUser user) {
@@ -59,7 +53,6 @@ public class Evaluator {
 
         Variation variationToServe;
         String evaluationReason = "";
-        StringBuilder sb = new StringBuilder();
 
         if (!flag.isEnabled()) {
             logger.debug("FLAG_DISABLED, {}, OFF_VARIATION is served to user {}", flag.getKey(), user.getId());

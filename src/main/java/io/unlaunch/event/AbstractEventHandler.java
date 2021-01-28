@@ -30,13 +30,15 @@ abstract class AbstractEventHandler implements EventHandler {
     private final AtomicBoolean closed = new AtomicBoolean(false);
     private final ScheduledExecutorService flushExecutor;
     private final String name;
+    private final boolean enabled;
     private final int maxBufferSize;
     private AtomicLong lastFlushInMillis = new AtomicLong();
     private static final Logger logger = LoggerFactory.getLogger(AbstractEventHandler.class);
 
-    AbstractEventHandler(String name, UnlaunchRestWrapper restClient, long flushIntervalInSeconds, int maxBufferSize) {
+    AbstractEventHandler(String name, boolean enabled, UnlaunchRestWrapper restClient, long flushIntervalInSeconds, int maxBufferSize) {
         this.restClient = restClient;
         this.name = name;
+        this.enabled = enabled;
         this.maxBufferSize = maxBufferSize;
         flushExecutor = Executors.newScheduledThreadPool(1,
                 new ThreadFactoryBuilder().setNameFormat(name + "-flush" + "-%d").build());
@@ -46,7 +48,7 @@ abstract class AbstractEventHandler implements EventHandler {
 
     @Override
     public boolean handle(Event event) {
-        if (event == null || closed.get()) {
+        if (!enabled || event == null || closed.get()) {
             return false;
         }
 

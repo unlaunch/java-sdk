@@ -1,5 +1,7 @@
 package io.unlaunch;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +50,11 @@ public class UnlaunchAttribute {
         return create(key, new HashSet<>(value));
     }
 
-    public static UnlaunchAttribute  newNumber(String key, Number value) {
+    public static UnlaunchAttribute newNumber(String key, Number value) {
+        if (value == null) {
+            throw new IllegalArgumentException("number can not be null");
+        }
+
         return create(key, value);
     }
 
@@ -57,11 +63,11 @@ public class UnlaunchAttribute {
     }
 
     public static UnlaunchAttribute newDateTime(String key, long millisecondsSinceEpoch) {
-        return create(key, millisecondsSinceEpoch);
+        return create(key, Instant.ofEpochMilli(millisecondsSinceEpoch).atOffset(ZoneOffset.UTC).toLocalDateTime());
     }
 
     public static UnlaunchAttribute newDate(String key, long millisecondsSinceEpoch) {
-        return create(key, millisecondsSinceEpoch);
+        return create(key, Instant.ofEpochMilli(millisecondsSinceEpoch).atOffset(ZoneOffset.UTC).toLocalDate());
     }
 
     public String getKey() {

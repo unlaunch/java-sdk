@@ -2,9 +2,7 @@ package io.unlaunch.engine;
 
 import io.unlaunch.UnlaunchAttribute;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -152,7 +150,7 @@ public class UnlaunchUser {
             throw new IllegalArgumentException("value `" + value + "` must be of type String, Number, Boolean, LocalDate, LocalDateTime, Date or Set");
         }
 
-        if (value instanceof  Number) {
+        if (value instanceof Number) {
             return new UnlaunchNumberValue((Number)value);
         } else if (value instanceof String) {
             return new UnlaunchStringValue(String.valueOf(value));
@@ -160,17 +158,9 @@ public class UnlaunchUser {
             return new UnlaunchBooleanValue((Boolean) value);
         } else if (value instanceof LocalDateTime) {
             return new UnlaunchDateTimeValue((LocalDateTime) value);
-        } else if (value instanceof Date) {
-            Date d = (Date) value;
-            LocalDateTime ld = LocalDateTime.from(Instant.ofEpochMilli(d.getTime()));
-            return new UnlaunchDateTimeValue(ld);
         } else if (value instanceof LocalDate) {
             LocalDate d = (LocalDate) value;
-            LocalDateTime ld = LocalDateTime.from(d);
-            return new UnlaunchDateTimeValue(ld);
-        } else if (value instanceof LocalDateTime) {
-            LocalDateTime d = (LocalDateTime) value;
-            return new UnlaunchDateTimeValue(d);
+            return new UnlaunchDateTimeValue(d.atStartOfDay());
         } else if (value instanceof Set) {
             Set d = (Set) value;
             return new UnlaunchSetValue(d);

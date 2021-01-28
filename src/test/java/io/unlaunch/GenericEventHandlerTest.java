@@ -19,7 +19,7 @@ public class GenericEventHandlerTest {
     public void testEventIsNull() {
         UnlaunchRestWrapper unlaunchRestWrapper =
                 UnlaunchRestWrapper.create("blah", "blah", "blah", 1000, 1000);
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,1000);
+        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", true, unlaunchRestWrapper,1000);
         boolean res = eventHandler.handle(null);
         Assert.assertFalse(res);
         eventHandler.close();
@@ -29,7 +29,7 @@ public class GenericEventHandlerTest {
     public void testEventsRejectedAfterClosed() {
         UnlaunchRestWrapper unlaunchRestWrapper =
                 UnlaunchRestWrapper.create("blah", "blah", "blah", 1000, 1000);
-        EventHandler eventHandler =EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper, 1000);
+        EventHandler eventHandler =EventHandler.createGenericEventHandler("evt", true, unlaunchRestWrapper, 1000);
         eventHandler.close();
         boolean res = eventHandler.handle(new Event("blah", ""));
         Assert.assertFalse(res);
@@ -39,7 +39,7 @@ public class GenericEventHandlerTest {
     public void testEventsAreNotSentUntilMaxSizeIsReached() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
 
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,
+        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", true, unlaunchRestWrapper,
                 Long.MAX_VALUE,
                 Integer.MAX_VALUE);
 
@@ -55,7 +55,7 @@ public class GenericEventHandlerTest {
     public void testEventsAreSentOutImmediatelyOnFlush()  {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
 
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,
+        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", true, unlaunchRestWrapper,
                 Long.MAX_VALUE,
                 Integer.MAX_VALUE);
 
@@ -73,7 +73,7 @@ public class GenericEventHandlerTest {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
 
         final int bufferSize = 3;
-        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", unlaunchRestWrapper,
+        EventHandler eventHandler = EventHandler.createGenericEventHandler("evt", true, unlaunchRestWrapper,
                 Long.MAX_VALUE,
                 bufferSize);
 
@@ -96,6 +96,7 @@ public class GenericEventHandlerTest {
         final int flushIntervalInSeconds = 1;
         EventHandler eventHandler = EventHandler.createGenericEventHandler(
                 "evt",
+                true,
                 eventsApiRestClient,
                 flushIntervalInSeconds,
                 Integer.MAX_VALUE);
