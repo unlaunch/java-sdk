@@ -56,7 +56,7 @@ final class Condition {
         return value;
     }
 
-    public void setValues(String value) {
+    public void setValue(String value) {
         this.value = value;
     }
     
