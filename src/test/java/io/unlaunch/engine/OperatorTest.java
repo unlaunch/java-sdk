@@ -22,9 +22,7 @@ public class OperatorTest {
     
     @Test
     public void testEquals(){
-
-        String country = "USA";
-        boolean result = Operator.EQUALS.apply(country, new UnlaunchStringValue(country), AttributeType.STRING);
+        boolean result = Operator.EQUALS.apply("java, csharp,    node", new UnlaunchStringValue("java, csharp,    node"), AttributeType.STRING);
         
         Assert.assertEquals("Result EQ: true", true, result);
     }
