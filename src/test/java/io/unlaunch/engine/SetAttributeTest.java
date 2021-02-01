@@ -64,11 +64,7 @@ public class SetAttributeTest {
         userSet.add("user1");
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.HAS_ALL_OF, userSet, values);
+        setCondition(Operator.HAS_ALL_OF, userSet, "user2,user1");
 
         OnVariation();
     }
@@ -80,11 +76,7 @@ public class SetAttributeTest {
         userSet.add("user1");
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.HAS_ALL_OF, userSet, values);
+        setCondition(Operator.HAS_ALL_OF, userSet, "user2,user1");
 
         OnVariation();
     }
@@ -94,11 +86,7 @@ public class SetAttributeTest {
         Set<String> userSet = new HashSet();
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.HAS_ALL_OF, userSet, values);
+        setCondition(Operator.HAS_ALL_OF, userSet, "user2,user1");
 
         OffVariation();
     }
@@ -107,11 +95,7 @@ public class SetAttributeTest {
     public void All_Of_WhenUserSetIsEmpty_ShouldNotMatch() {
         Set<String> userSet = new HashSet();
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.HAS_ALL_OF, userSet, values);
+        setCondition(Operator.HAS_ALL_OF, userSet, "user2,user1");
 
         OffVariation();
     }
@@ -123,11 +107,7 @@ public class SetAttributeTest {
         userSet.add("user1");
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, "user2,user1");
 
         OffVariation();
     }
@@ -139,11 +119,7 @@ public class SetAttributeTest {
         userSet.add("user1");
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, "user2,user1");
 
         OffVariation();
     }
@@ -153,11 +129,7 @@ public class SetAttributeTest {
         Set<String> userSet = new HashSet();
         userSet.add("user2");
 
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, "user2,user1");
 
         OnVariation();
     }
@@ -165,12 +137,7 @@ public class SetAttributeTest {
     @Test
     public void Not_All_Of_WhenUserSetIsEmpty_ShouldMatch() {
         Set<String> userSet = new HashSet();
-
-        List<String> values = new ArrayList<>();
-        values.add("user2");
-        values.add("user1");
-
-        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ALL_OF, userSet, "user2,user1");
 
         OnVariation();
     }
@@ -182,11 +149,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "1,2");
 
         OnVariation();
     }
@@ -198,11 +161,7 @@ public class SetAttributeTest {
         userSet.add("3");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "1,2");
 
         OnVariation();
     }
@@ -212,11 +171,7 @@ public class SetAttributeTest {
         Set<String> userSet = new HashSet();
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "1,2");
 
         OnVariation();
     }
@@ -229,13 +184,7 @@ public class SetAttributeTest {
         userSet.add("3");
         userSet.add("4");
 
-        List<String> values = new ArrayList<>();
-        values.add("3");
-        values.add("2");
-        values.add("1");
-        values.add("10");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "3,2,1,10");
 
         OnVariation();
     }
@@ -246,12 +195,7 @@ public class SetAttributeTest {
         userSet.add("4");
         userSet.add("5");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-        values.add("3");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "1,2,3");
 
         OffVariation();
     }
@@ -260,10 +204,7 @@ public class SetAttributeTest {
     public void Any_Of_UserSetIsEmpty_ShouldNotMatch() {
         Set<String> userSet = new HashSet();
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.HAS_ANY_OF, userSet, values);
+        setCondition(Operator.HAS_ANY_OF, userSet, "1");
 
         OffVariation();
     }
@@ -275,11 +216,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "1,2");
 
         OffVariation();
     }
@@ -291,11 +228,7 @@ public class SetAttributeTest {
         userSet.add("3");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "1,2");
 
         OffVariation();
     }
@@ -305,11 +238,7 @@ public class SetAttributeTest {
         Set<String> userSet = new HashSet();
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "1,2");
 
         OffVariation();
     }
@@ -322,13 +251,7 @@ public class SetAttributeTest {
         userSet.add("3");
         userSet.add("4");
 
-        List<String> values = new ArrayList<>();
-        values.add("3");
-        values.add("2");
-        values.add("1");
-        values.add("10");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "3,2,1,10");
 
         OffVariation();
     }
@@ -339,12 +262,7 @@ public class SetAttributeTest {
         userSet.add("4");
         userSet.add("5");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("2");
-        values.add("3");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "1,2,3");
 
         OnVariation();
     }
@@ -353,10 +271,7 @@ public class SetAttributeTest {
     public void Not_Any_Of_UserSetIsEmpty_ShouldMatch() {
         Set<String> userSet = new HashSet();
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, values);
+        setCondition(Operator.DOES_NOT_HAVE_ANY_OF, userSet, "1");
 
         OnVariation();
     }
@@ -368,11 +283,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-
-        setCondition(Operator.IS_PART_OF, userSet, values);
+        setCondition(Operator.IS_PART_OF, userSet, "2,1");
 
         OnVariation();
     }
@@ -384,11 +295,7 @@ public class SetAttributeTest {
         userSet.add("2");
         userSet.add("3");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-
-        setCondition(Operator.IS_PART_OF, userSet, values);
+        setCondition(Operator.IS_PART_OF, userSet, "2,1");
 
         OffVariation();
     }
@@ -399,12 +306,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-        values.add("3");
-
-        setCondition(Operator.IS_PART_OF, userSet, values);
+        setCondition(Operator.IS_PART_OF, userSet, "2,1,3");
 
         OnVariation();
     }
@@ -416,11 +318,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-
-        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
+        setCondition(Operator.IS_NOT_PART_OF, userSet, "2,1");
 
         OffVariation();
     }
@@ -432,13 +330,9 @@ public class SetAttributeTest {
         userSet.add("2");
         userSet.add("3");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
+        setCondition(Operator.IS_NOT_PART_OF, userSet, "2,1");
 
-        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
-
-        OffVariation();
+        OnVariation();
     }
 
     @Test
@@ -447,12 +341,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-        values.add("3");
-
-        setCondition(Operator.IS_NOT_PART_OF, userSet, values);
+        setCondition(Operator.IS_NOT_PART_OF, userSet, "2,1,3");
 
         OffVariation();
     }
@@ -464,11 +353,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-
-        setCondition(Operator.EQUALS, userSet, values);
+        setCondition(Operator.EQUALS, userSet, "2,1");
 
         OnVariation();
     }
@@ -479,12 +364,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("3");
-        values.add("2");
-
-        setCondition(Operator.EQUALS, userSet, values);
+        setCondition(Operator.EQUALS, userSet, "1,3,2");
 
         OffVariation();
     }
@@ -493,10 +373,7 @@ public class SetAttributeTest {
     public void Equals_UserSetIsEmpty_ShouldNotMatch() {
         Set<String> userSet = new HashSet();
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.EQUALS, userSet, values);
+        setCondition(Operator.EQUALS, userSet, "1");
 
         OffVariation();
     }
@@ -507,10 +384,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.EQUALS, userSet, values);
+        setCondition(Operator.EQUALS, userSet, "1");
 
         OffVariation();
     }
@@ -522,11 +396,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("2");
-        values.add("1");
-
-        setCondition(Operator.NOT_EQUALS, userSet, values);
+        setCondition(Operator.NOT_EQUALS, userSet, "2,1");
 
         OffVariation();
     }
@@ -537,12 +407,7 @@ public class SetAttributeTest {
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-        values.add("3");
-        values.add("2");
-
-        setCondition(Operator.NOT_EQUALS, userSet, values);
+        setCondition(Operator.NOT_EQUALS, userSet, "1,3,2");
 
         OnVariation();
     }
@@ -551,24 +416,18 @@ public class SetAttributeTest {
     public void Not_Equals_UserSetIsEmpty_ShouldMatch() {
         Set<String> userSet = new HashSet();
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.NOT_EQUALS, userSet, values);
+        setCondition(Operator.NOT_EQUALS, userSet, "1");
 
         OnVariation();
     }
 
     @Test
-    public void Not_Equals_UserSetIsSuperset_ShouldNotMatch() {
+    public void Not_Equals_UserSetIsSuperset_ShouldMatch() {
         Set<String> userSet = new HashSet();
         userSet.add("1");
         userSet.add("2");
 
-        List<String> values = new ArrayList<>();
-        values.add("1");
-
-        setCondition(Operator.NOT_EQUALS, userSet, values);
+        setCondition(Operator.NOT_EQUALS, userSet, "1");
 
         OnVariation();
     }
@@ -587,7 +446,7 @@ public class SetAttributeTest {
         assertEquals(feature.getVariation(), varKeyOFF);
     }
 
-    private void setCondition(Operator operator, Set<String> userSet, List<String> values) {
+    private void setCondition(Operator operator, Set<String> userSet, String value) {
         UnlaunchSetValue setValue = Mockito.mock(UnlaunchSetValue.class);
         when(setValue.get()).thenReturn(userSet);
 
@@ -595,7 +454,7 @@ public class SetAttributeTest {
         map.put(attribute, setValue);
         when(user.getAllAttributes()).thenReturn(map);
 
-        Condition condition = new Condition(attribute, operator, AttributeType.SET, values);
+        Condition condition = new Condition(attribute, operator, AttributeType.SET, value);
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
 

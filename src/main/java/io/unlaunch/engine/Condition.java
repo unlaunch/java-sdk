@@ -12,20 +12,20 @@ final class Condition {
     private String attribute;
     private Operator operator;
     private AttributeType type;
-    private List<String> values;
+    private String value;
 
     /**
      *
      * @param attribute
      * @param operator
      * @param type
-     * @param values
+     * @param value
      */
-    public Condition(String attribute, Operator operator, AttributeType type, List<String> values) {
+    public Condition(String attribute, Operator operator, AttributeType type, String value) {
         this.attribute = attribute;
         this.operator = operator;
         this.type = type;
-        this.values = values;
+        this.value = value;
     }
 
     public String getAttribute() {
@@ -52,12 +52,12 @@ final class Condition {
         this.type = type;
     }
 
-    public List<String> getValues() {
-        return values;
+    public String getValue() {
+        return value;
     }
 
-    public void setValues(List<String> values) {
-        this.values = values;
+    public void setValues(String value) {
+        this.value = value;
     }
     
     /**
@@ -69,7 +69,7 @@ final class Condition {
     public boolean match(UnlaunchUser user){
     
         if(user.getAllAttributes().containsKey(attribute)){
-            return operator.apply(values, user.getAllAttributes().get(attribute), type);
+            return operator.apply(value, user.getAllAttributes().get(attribute), type);
         }
         
         return false;

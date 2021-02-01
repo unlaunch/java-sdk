@@ -22,100 +22,64 @@ public class OperatorTest {
     
     @Test
     public void testEquals(){
-    
+
         String country = "USA";
-        List<String> countryList = Arrays.asList("china","pak","india");
+        boolean result = Operator.EQUALS.apply(country, new UnlaunchStringValue(country), AttributeType.STRING);
         
-        boolean result = Operator.EQUALS.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result EQ: false", false ,result);
-        
-        System.out.println("Result EQ: " + result);
+        Assert.assertEquals("Result EQ: true", true, result);
     }
 
     @Test
     public void testNotEquals(){
     
-        String country = "USA";
-        List<String> countryList = Arrays.asList("china","pak","india");
+        boolean result = Operator.NOT_EQUALS.apply("Canada", new UnlaunchStringValue("USA"), AttributeType.STRING);
         
-        boolean result = Operator.NOT_EQUALS.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result NEQ: true", true ,result);
-        
-        System.out.println("Result NEQ: " + result);
+        Assert.assertEquals("Result NEQ: true", true, result);
     }
     
     @Test
     public void testEqualsInNumberAttribute(){
     
         Number userValue = 10.5;
-        List<String> numberList = Arrays.asList("10.5", "100.30", "82", "10");
+        boolean result = Operator.EQUALS.apply(String.valueOf(userValue), new UnlaunchNumberValue(userValue), AttributeType.NUMBER);
         
-        boolean result = Operator.EQUALS.apply(numberList, new UnlaunchNumberValue(userValue), AttributeType.NUMBER);
-        
-        Assert.assertEquals("Result EQ: true", true ,result);
-       
+        Assert.assertEquals("Result EQ: true", true, result);
     }
 
     @Test
     public void testNotEqualsInNumberAttribute(){
-    
-        Number userValue = 10.5;
-        List<String> numberList = Arrays.asList("10.7", "100", "82.35", "17");
+
+        boolean result = Operator.NOT_EQUALS.apply(String.valueOf(10.7), new UnlaunchNumberValue(10.5), AttributeType.NUMBER);
         
-        boolean result = Operator.NOT_EQUALS.apply(numberList, new UnlaunchNumberValue(userValue), AttributeType.NUMBER);
-        
-        Assert.assertEquals("Result NEQ: true", true ,result);
-        
+        Assert.assertEquals("Result NEQ: true", true, result);
     }
     
     @Test
     public void testGreaterThan(){
-    
-        int age = 18;
-        List<String> ageList = Arrays.asList("15");
+        boolean result = Operator.GREATER_THAN.apply(String.valueOf(10), new UnlaunchNumberValue(15), AttributeType.STRING);
         
-        boolean result = Operator.GREATER_THAN.apply(ageList, new UnlaunchNumberValue(age), AttributeType.STRING);
-        
-        Assert.assertEquals("Result GT: true", true ,result);
-        System.out.println("Result GT: " + result);
+        Assert.assertEquals("Result GT: true", true, result);
     }
     
     @Test
     public void testGreaterThanOrEquals(){
-    
-        int age = 18;
-        List<String> ageList = Arrays.asList("15","18","30");
+        boolean result = Operator.GREATER_THAN_OR_EQUALS.apply(String.valueOf(18), new UnlaunchNumberValue(18), AttributeType.STRING);
         
-        boolean result = Operator.GREATER_THAN_OR_EQUALS.apply(ageList, new UnlaunchNumberValue(age), AttributeType.STRING);
-        
-        Assert.assertEquals("Result GTE: true.", true ,result);
-        System.out.println("Result GTE: " + result);
+        Assert.assertEquals("Result GTE: true.", true, result);
     }
     
     @Test
     public void testLT(){
-    
-        int amountSpend = 1500;
-        List<String> amountSpendList = Arrays.asList("1800");
+        boolean result = Operator.LESS_THAN.apply(String.valueOf(1800), new UnlaunchNumberValue(1500), AttributeType.STRING);
         
-        boolean result = Operator.LESS_THAN.apply(amountSpendList, new UnlaunchNumberValue(amountSpend), AttributeType.STRING);
-        
-        Assert.assertEquals("Result LT: true", true ,result);
-        System.out.println("Result LT: " + result);
+        Assert.assertEquals("Result LT: true", true, result);
     }
     
     @Test
     public void testLTE() {
+        boolean result = Operator.LESS_THAN_OR_EQUALS.apply(String.valueOf(1800), new UnlaunchNumberValue(1800), AttributeType.STRING);
 
-        int amountSpend = 1800;
-        List<String> amountSpendList = Arrays.asList("1800");;
-
-        boolean result = Operator.LESS_THAN_OR_EQUALS.apply(amountSpendList, new UnlaunchNumberValue(amountSpend), AttributeType.STRING);
-
-        Assert.assertEquals("Result LTE: true", true ,result);
-        System.out.println("Result LTE: " + result);
+        Assert.assertEquals("Result LTE: true", true, result);
     }
     
     @Test
@@ -124,42 +88,27 @@ public class OperatorTest {
         long currentTimeInMillis = System.currentTimeMillis();
         
         LocalDateTime localDateTime = Instant.ofEpochMilli(currentTimeInMillis).atZone(ZoneId.systemDefault()).toLocalDateTime();
-        System.out.println("User Datetime: " + localDateTime);
         
         LocalDateTime dayBeforeDateTime = localDateTime.minusDays(1l);
         long dayBeforeEpoch = dayBeforeDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                
-        System.out.println("Rule Apply Datetime: " + dayBeforeDateTime);
-        List<String> timeList = Arrays.asList(String.valueOf(dayBeforeEpoch));
         
-        boolean result = Operator.LESS_THAN_OR_EQUALS.apply(timeList, new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
+        boolean result = Operator.LESS_THAN_OR_EQUALS.apply(String.valueOf(dayBeforeEpoch), new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
 
-        Assert.assertEquals("Result LEQ: False", false , result);
-        
-        System.out.println("Result LEQ: " + result);
+        Assert.assertEquals("Result LEQ: False", false, result);
     }
     
     @Test
     public void testTimeGTE() {
 
         long currentTimeInMillis = System.currentTimeMillis();
-
         LocalDateTime localDateTime = Instant.ofEpochMilli(currentTimeInMillis).atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-        System.out.println("User Datetime: " + localDateTime);
         
         LocalDateTime tomorrowDateTime = localDateTime.plusDays(1l);
         long tomorrowEpoch = tomorrowDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-        System.out.println("Rule Apply Datetime: " + tomorrowDateTime);
-        
-        List<String> timeList = Arrays.asList(String.valueOf(tomorrowEpoch));
-
-        boolean result = Operator.GREATER_THAN_OR_EQUALS.apply(timeList, new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
+        boolean result = Operator.GREATER_THAN_OR_EQUALS.apply(String.valueOf(tomorrowEpoch), new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
 
         Assert.assertEquals("Result GTE: false", false, result);
-
-        System.out.println("Result GTE: " + result);
     }
     
     
@@ -167,95 +116,58 @@ public class OperatorTest {
     public void testTimeGT() {
 
         long currentTimeInMillis = System.currentTimeMillis();
-
         LocalDateTime localDateTime = Instant.ofEpochMilli(currentTimeInMillis).atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-        System.out.println("User Datetime: " + localDateTime);
         
         LocalDateTime yesterdayDateTime = localDateTime.minusDays(1l);
         long dayBeforeEpoch = yesterdayDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-        System.out.println("Rule Apply: " + yesterdayDateTime);
-        
-        List<String> timeList = Arrays.asList(String.valueOf(dayBeforeEpoch));
-
-        boolean result = Operator.GREATER_THAN.apply(timeList, new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
+        boolean result = Operator.GREATER_THAN.apply(String.valueOf(dayBeforeEpoch), new UnlaunchDateTimeValue(localDateTime), AttributeType.DATE_TIME);
 
         Assert.assertEquals("Result GT: True", true, result);
-
-        System.out.println("Result GT: " + result);
     }
     
     
     @Test
     public void testSW(){
-    
-        String country = "pak";
-        List<String> countryList = Arrays.asList("china","pak","india");
+        boolean result = Operator.STARTS_WITH.apply("java", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
         
-        boolean result = Operator.STARTS_WITH.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result SW: true", true ,result);
-        System.out.println("Result SW: " + result);
+        Assert.assertEquals("Result SW: true", true, result);
     }
     
     @Test
     public void testNSW(){
-    
-        String country = "USA";
-        List<String> countryList = Arrays.asList("ch","pak","ind");
+        boolean result = Operator.NOT_STARTS_WITH.apply("sdk", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
         
-        boolean result = Operator.NOT_STARTS_WITH.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result NSW: true.", true ,result);
+        Assert.assertEquals("Result NSW: true.", true, result);
         System.out.println("Result NSW: " + result);
     }
     
     @Test
     public void testEW(){
-    
-        String country = "pakistan";
-        List<String> countryList = Arrays.asList("tan","dia");
+        boolean result = Operator.ENDS_WITH.apply("sdk", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
         
-        boolean result = Operator.ENDS_WITH.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result EW: true", true ,result);
-        System.out.println("Result EW : " + result);
+        Assert.assertEquals("Result EW: true", true, result);
     }
     
     @Test
     public void testNEW(){
-    
-        String country = "USA";
-        List<String> countryList = Arrays.asList("ina","tan","dia");
+        boolean result = Operator.NOT_ENDS_WITH.apply("java", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
         
-        boolean result = Operator.NOT_ENDS_WITH.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result NEW: true.", true ,result);
-        System.out.println("Result NEW: " + result);
+        Assert.assertEquals("Result NEW: true.", true, result);
     }
     
     @Test
     public void testContains(){
-    
-        String country = "USA";
-        List<String> countryList = Arrays.asList("S","is","dia");
+        boolean result = Operator.CONTAINS.apply("java", new UnlaunchStringValue("sdk, java"), AttributeType.STRING);
         
-        boolean result = Operator.CONTAINS.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-        
-        Assert.assertEquals("Result Contains: true.", true ,result);
-        System.out.println("Result Contains : " + result);
+        Assert.assertEquals("Result Contains: true.", true, result);
     }
     
     @Test
     public void testIsOneOf() {
+        boolean result = Operator.IS_ONE_OF.apply("java-sdk", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
 
-        String country = "China";
-        List<String> countryList = Arrays.asList("USA", "Pak", "China");
-
-        boolean result = Operator.IS_ONE_OF.apply(countryList, new UnlaunchStringValue(country), AttributeType.STRING);
-
-        Assert.assertEquals("Result IOF: true", true ,result);
+        Assert.assertEquals("Result IOF: true", true, result);
         System.out.println("Result IOF : " + result);
     }
     
