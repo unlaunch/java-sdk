@@ -12,10 +12,8 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -92,10 +90,7 @@ public class AttributeTypeTest {
         when(user.getId()).thenReturn(userId);
         when(user.getAllAttributes()).thenReturn(map);
         
-        List<String> values = new ArrayList<>();
-        values.add("en-US");
-        
-        Condition condition = new Condition("locale", Operator.EQUALS, AttributeType.STRING, values);
+        Condition condition = new Condition("locale", Operator.EQUALS, AttributeType.STRING, "en-US");
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
         
@@ -127,10 +122,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("en-US");
-        Condition condition = new Condition("locale", Operator.NOT_EQUALS, AttributeType.STRING, values);
+
+        Condition condition = new Condition("locale", Operator.NOT_EQUALS, AttributeType.STRING, "en-US");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -164,10 +157,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("en");
-        Condition condition = new Condition("locale", Operator.STARTS_WITH, AttributeType.STRING, values);
+
+        Condition condition = new Condition("locale", Operator.STARTS_WITH, AttributeType.STRING, "en");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -201,10 +192,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("US");
-        Condition condition = new Condition("locale", Operator.ENDS_WITH, AttributeType.STRING, values);
+
+        Condition condition = new Condition("locale", Operator.ENDS_WITH, AttributeType.STRING, "US");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -238,10 +227,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("en-US");
-        Condition condition = new Condition("locale", Operator.NOT_STARTS_WITH, AttributeType.STRING, values);
+
+        Condition condition = new Condition("locale", Operator.NOT_STARTS_WITH, AttributeType.STRING, "en-US");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -275,10 +262,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("en-US");
-        Condition condition = new Condition("locale", Operator.NOT_ENDS_WITH, AttributeType.STRING, values);
+
+        Condition condition = new Condition("locale", Operator.NOT_ENDS_WITH, AttributeType.STRING, "en-US");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -311,9 +296,7 @@ public class AttributeTypeTest {
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
 
-        List<String> values = new ArrayList<>();
-        values.add("n-U");
-        Condition condition = new Condition("locale", Operator.CONTAINS, AttributeType.STRING, values);
+        Condition condition = new Condition("locale", Operator.CONTAINS, AttributeType.STRING, "n-U");
 
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -346,9 +329,7 @@ public class AttributeTypeTest {
         map.put("locale", stringValue);
         when(user.getAllAttributes()).thenReturn(map);
 
-        List<String> values = new ArrayList<>();
-        values.add("n-1");
-        Condition condition = new Condition("locale", Operator.NOT_CONTAINS, AttributeType.STRING, values);
+        Condition condition = new Condition("locale", Operator.NOT_CONTAINS, AttributeType.STRING, "n-1");
 
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -384,10 +365,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.EQUALS, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.EQUALS, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -421,10 +400,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.NOT_EQUALS, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.NOT_EQUALS, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -458,10 +435,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.GREATER_THAN, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.GREATER_THAN, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -495,10 +470,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.GREATER_THAN_OR_EQUALS, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.GREATER_THAN_OR_EQUALS, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -532,10 +505,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.LESS_THAN, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.LESS_THAN, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -569,10 +540,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("epoch", numberValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add("123");
-        Condition condition = new Condition("epoch", Operator.LESS_THAN_OR_EQUALS, AttributeType.NUMBER, values);
+
+        Condition condition = new Condition("epoch", Operator.LESS_THAN_OR_EQUALS, AttributeType.NUMBER, "123");
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -608,11 +577,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        logger.debug("values " + String.valueOf(new Date()) + " user val " + LocalDateTime.now());
-        Condition condition = new Condition("start_date", Operator.EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -646,10 +612,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.NOT_EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.NOT_EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -683,10 +647,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.GREATER_THAN, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.GREATER_THAN, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -720,10 +682,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.LESS_THAN, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.LESS_THAN, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -757,10 +717,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.GREATER_THAN_OR_EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.GREATER_THAN_OR_EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -794,10 +752,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.LESS_THAN_OR_EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.LESS_THAN_OR_EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -833,10 +789,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.LESS_THAN, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.LESS_THAN, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -870,10 +824,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.LESS_THAN_OR_EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.LESS_THAN_OR_EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -907,10 +859,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.GREATER_THAN_OR_EQUALS, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.GREATER_THAN_OR_EQUALS, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
@@ -944,10 +894,8 @@ public class AttributeTypeTest {
         Map<String, UnlaunchValue> map = new HashMap();
         map.put("start_date", dateValue);
         when(user.getAllAttributes()).thenReturn(map);
-        
-        List<String> values = new ArrayList<>();
-        values.add(String.valueOf(new Date().getTime()));
-        Condition condition = new Condition("start_date", Operator.GREATER_THAN, AttributeType.DATE, values);
+
+        Condition condition = new Condition("start_date", Operator.GREATER_THAN, AttributeType.DATE, String.valueOf(new Date().getTime()));
         
         List<Condition> conditions = new ArrayList<>();
         conditions.add(condition);
