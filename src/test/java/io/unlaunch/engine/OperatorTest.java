@@ -8,9 +8,8 @@ package io.unlaunch.engine;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Arrays;
-import java.util.List;
 
+import io.unlaunch.exceptions.UnlaunchAttributeCastException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -25,6 +24,27 @@ public class OperatorTest {
         boolean result = Operator.EQUALS.apply("java, csharp,    node", new UnlaunchStringValue("java, csharp,    node"), AttributeType.STRING);
         
         Assert.assertEquals("Result EQ: true", true, result);
+    }
+
+    @Test
+    public void testEqualsWrongDateFormat(){
+        Assert.assertThrows(UnlaunchAttributeCastException.class,
+                () -> Operator.EQUALS.apply("1612314129000", new UnlaunchStringValue("invalidDate"), AttributeType.DATE)
+        );
+    }
+
+    @Test
+    public void testEqualsWrongSetFormat(){
+        Assert.assertThrows(UnlaunchAttributeCastException.class,
+                () -> Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.SET)
+        );
+    }
+
+    @Test
+    public void testEqualsWrongNumberFormat(){
+        Assert.assertThrows(UnlaunchAttributeCastException.class,
+                () -> Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.NUMBER)
+        );
     }
 
     @Test
@@ -137,7 +157,6 @@ public class OperatorTest {
         boolean result = Operator.NOT_STARTS_WITH.apply("sdk", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
         
         Assert.assertEquals("Result NSW: true.", true, result);
-        System.out.println("Result NSW: " + result);
     }
     
     @Test
@@ -166,8 +185,5 @@ public class OperatorTest {
         boolean result = Operator.IS_ONE_OF.apply("java-sdk", new UnlaunchStringValue("java-sdk"), AttributeType.STRING);
 
         Assert.assertEquals("Result IOF: true", true, result);
-        System.out.println("Result IOF : " + result);
     }
-    
-   
 }

@@ -1,5 +1,7 @@
 package io.unlaunch.engine;
 
+import io.unlaunch.exceptions.UnlaunchAttributeCastException;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -261,18 +263,21 @@ enum Operator {
         if (userValue == null) {
             return false;
         }
-        if (AttributeType.DATE.equals(type)) {
 
-            LocalDateTime userDateTime = ((UnlaunchDateTimeValue) userValue).get();
+        if (AttributeType.DATE.equals(type)) {
+            LocalDateTime userDateTime = getLocalDateTime(userValue);
             LocalDate userDate = userDateTime.toLocalDate();
 
             return userDate.equals(Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDate());
-        }
-
-        if (AttributeType.SET.equals(type)) {
-            Set userSetValue = (Set) userValue.get();
+        } else if (AttributeType.SET.equals(type)) {
+            Set userSetValue = getUserSet(userValue);
             Set valuesSet = new HashSet(Arrays.asList(value.split(",")));
+
             return valuesSet.equals(userSetValue);
+        } else if (AttributeType.NUMBER.equals(type)) {
+            return getUserNumber(userValue) == Double.valueOf(value);
+        } else if (AttributeType.BOOLEAN.equals(type)) {
+            return userValue.toString().toLowerCase().equals("true");
         }
 
         return userValue.toString().equals(value);
@@ -285,17 +290,17 @@ enum Operator {
 
         if (AttributeType.DATE.equals(type)) {
 
-            LocalDateTime userDateTime = ((UnlaunchDateTimeValue) userValue).get();
+            LocalDateTime userDateTime = getLocalDateTime(userValue);
             LocalDate userDate = userDateTime.toLocalDate();
 
             return userDate.isAfter(Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDate());
         } else if (AttributeType.DATE_TIME.equals(type)) {
-            LocalDateTime userDateTime = ((UnlaunchDateTimeValue) userValue).get();
+            LocalDateTime userDateTime = getLocalDateTime(userValue);
 
             return userDateTime.isAfter(Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDateTime());
         }
 
-        return Double.valueOf(userValue.toString()) > Double.valueOf(value);
+        return getUserNumber(userValue) > Double.valueOf(value);
     }
 
     static boolean lessThan(String value, UnlaunchValue userValue, AttributeType type) {
@@ -305,20 +310,20 @@ enum Operator {
 
         if (AttributeType.DATE.equals(type)) {
 
-            LocalDateTime userDateTime = ((UnlaunchDateTimeValue) userValue).get();
+            LocalDateTime userDateTime = getLocalDateTime(userValue);
             LocalDate userDate = userDateTime.toLocalDate();
             LocalDate valueDate = Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDate();
 
             return userDate.isBefore(valueDate);
         } else if (AttributeType.DATE_TIME.equals(type)) {
 
-            LocalDateTime userDateTime = ((UnlaunchDateTimeValue) userValue).get();
+            LocalDateTime userDateTime = getLocalDateTime(userValue);
             LocalDateTime valueDateTime = Instant.ofEpochMilli(Long.valueOf(value)).atZone(ZoneId.of("UTC")).toLocalDateTime();
 
             return userDateTime.isBefore(valueDateTime);
         }
 
-        return Double.valueOf(userValue.toString()) < Double.valueOf(value);
+        return getUserNumber(userValue) < Double.valueOf(value);
     }
 
     static boolean startsWith(String value, UnlaunchValue userValue) {
@@ -350,7 +355,7 @@ enum Operator {
             return false;
         }
 
-        Set userSet = (Set) userValue.get();
+        Set userSet = getUserSet(userValue);
         List<String> values = Arrays.asList(value.split(","));
 
         Set<String> intersection = values.stream()
@@ -366,7 +371,7 @@ enum Operator {
             return false;
         }
 
-        Set userSet = (Set) userValue.get();
+        Set userSet = getUserSet(userValue);
         List<String> values = Arrays.asList(value.split(","));
 
         return values.stream().anyMatch(item -> userSet.contains(item));
@@ -377,9 +382,36 @@ enum Operator {
             return false;
         }
 
-        Set userSet = (Set) userValue.get();
+        Set userSet = getUserSet(userValue);
         List<String> values = Arrays.asList(value.split(","));
 
         return values.stream().allMatch(item -> userSet.contains(item));
+    }
+
+    static LocalDateTime getLocalDateTime(UnlaunchValue userValue) {
+        try {
+            return ((UnlaunchDateTimeValue) userValue).get();
+        } catch (ClassCastException e) {
+            throw new UnlaunchAttributeCastException("Can not convert " + userValue.get()
+                    + " to date time. Please make sure your date/datetime value is in expected format!");
+        }
+    }
+
+    static Set<String> getUserSet(UnlaunchValue userValue) {
+        try {
+            return (Set<String>) userValue.get();
+        } catch (ClassCastException e) {
+            throw new UnlaunchAttributeCastException("Can not convert " + userValue.get()
+                    + " to Set. Please make sure your set is valid!");
+        }
+    }
+
+    static double getUserNumber(UnlaunchValue userValue) {
+        try {
+            return Double.valueOf(userValue.toString());
+        } catch (NumberFormatException e) {
+            throw new UnlaunchAttributeCastException("Can not convert " + userValue.get()
+                    + " to number. Please make sure your number is valid!");
+        }
     }
 }
