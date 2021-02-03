@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  *
  * @author jawad
  */
-enum Operator {
+public enum Operator {
 
     /**
      * Returns true if userValue is equal to value. Returns
