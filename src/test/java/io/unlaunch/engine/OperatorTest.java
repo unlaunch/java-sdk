@@ -28,23 +28,41 @@ public class OperatorTest {
 
     @Test
     public void testEqualsWrongDateFormat(){
+        /*
         Assert.assertThrows(UnlaunchAttributeCastException.class,
                 () -> Operator.EQUALS.apply("1612314129000", new UnlaunchStringValue("invalidDate"), AttributeType.DATE)
-        );
+        ); */
+        try {
+            Operator.EQUALS.apply("1612314129000", new UnlaunchStringValue("invalidDate"), AttributeType.DATE);
+        } catch (UnlaunchAttributeCastException e) {
+            Assert.assertNotNull(e);
+        }
     }
 
     @Test
     public void testEqualsWrongSetFormat(){
+        /*
         Assert.assertThrows(UnlaunchAttributeCastException.class,
                 () -> Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.SET)
-        );
+        ); */
+        try {
+            Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.SET);
+        } catch (UnlaunchAttributeCastException e) {
+            Assert.assertNotNull(e);
+        }
     }
 
     @Test
     public void testEqualsWrongNumberFormat(){
+        /*
         Assert.assertThrows(UnlaunchAttributeCastException.class,
                 () -> Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.NUMBER)
-        );
+        ); */
+        try {
+            Operator.EQUALS.apply("value", new UnlaunchBooleanValue(true), AttributeType.NUMBER);
+        } catch (UnlaunchAttributeCastException e) {
+            Assert.assertNotNull(e);
+        }
     }
 
     @Test
