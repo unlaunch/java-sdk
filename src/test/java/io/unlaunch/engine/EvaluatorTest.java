@@ -273,10 +273,7 @@ public class EvaluatorTest {
         when(condition.getOperator()).thenReturn(Operator.EQUALS);
         when(condition.getType()).thenReturn(AttributeType.STRING);
 
-        List<String> values = new ArrayList<>();
-        values.add("male");
-
-        when(condition.getValues()).thenReturn(values);
+        when(condition.getValue()).thenReturn("male");
 
         conditions.add(condition);
 

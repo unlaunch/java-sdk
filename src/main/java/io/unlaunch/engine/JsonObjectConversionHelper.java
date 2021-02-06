@@ -157,7 +157,7 @@ public final class JsonObjectConversionHelper {
         Condition condition = new Condition((String)json.get("attribute"), 
                                 Operator.findByKey((String)json.get("op")),
                                 AttributeType.getByName((String)json.get("type")),
-                                Arrays.asList(((String)json.get("value")).split(",")));
+                                (String)json.get("value"));
         
         
         return condition;
