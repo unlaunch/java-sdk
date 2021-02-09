@@ -32,7 +32,7 @@ First, add the maven dependency to your project. Use the latest version from [he
  <dependency>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.7</version>
 </dependency>
 ```
 Here's how you'd use the Java SDK in your application.
