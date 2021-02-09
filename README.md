@@ -19,6 +19,10 @@ The Unlaunch Java SDK provides a Java API to access Unlaunch feature flags and o
 ### Compatibility
 Unlaunch Java SDK requires Java 8 or higher.
 
+ ### This is a server-side SDK
+ This SDK is server-side and should be used in applications that you run on your own servers such as backend
+  services or web servers. For more information, see [this](https://docs.unlaunch.io/docs/sdks/client-vs-server-side-sdks).
+
 ## Getting Started
 Here is a simple example. 
 
@@ -28,7 +32,7 @@ First, add the maven dependency to your project. Use the latest version from [he
  <dependency>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.7</version>
 </dependency>
 ```
 Here's how you'd use the Java SDK in your application.
