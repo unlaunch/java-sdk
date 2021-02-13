@@ -6,9 +6,7 @@ import io.unlaunch.utils.MurmurHash3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -164,8 +162,7 @@ public class Evaluator {
     private Variation getVariationIfUserInAllowList(FeatureFlag flag, UnlaunchUser user) {
         for (Variation variation : flag.getVariations()) {
             if (variation.getAllowList() != null) {
-                List<String> allowList = Arrays.asList(variation.getAllowList().replace(" ", "").split(","));
-
+                Set<String> allowList = new HashSet<>(Arrays.asList(variation.getAllowList().split(",")));
                 if (allowList.contains(user.getId())) {
                     return variation;
                 }

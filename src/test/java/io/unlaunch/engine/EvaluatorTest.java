@@ -40,7 +40,7 @@ public class EvaluatorTest {
      */
     @Test
     public void testEvaluateWhenUserIsInAllowlistForOnVariation() {
-        final String userId = "user123";
+        final String userId = "user 123";
         
         UnlaunchUser user = Mockito.mock(UnlaunchUser.class);
         when(user.getId()).thenReturn(userId);
@@ -283,7 +283,7 @@ public class EvaluatorTest {
         Variation variationOFF = Mockito.mock(Variation.class);
         Variation defaultVariation = Mockito.mock(Variation.class);
 
-        final String allowList = "user123";
+        final String allowList = "user 123,user26";
 
         when(variationON.getAllowList()).thenReturn(allowList);
 
