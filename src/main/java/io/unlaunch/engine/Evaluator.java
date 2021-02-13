@@ -164,7 +164,7 @@ public class Evaluator {
     private Variation getVariationIfUserInAllowList(FeatureFlag flag, UnlaunchUser user) {
         for (Variation variation : flag.getVariations()) {
             if (variation.getAllowList() != null) {
-                List<String> allowList = Arrays.asList(variation.getAllowList().replace(" ", "").split(","));
+                List<String> allowList = Arrays.asList(variation.getAllowList().split(","));
 
                 if (allowList.contains(user.getId())) {
                     return variation;
