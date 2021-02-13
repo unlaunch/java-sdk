@@ -143,7 +143,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public void close() {
         projectNameRef.set(null);
         environmentNameRef.set(null);
-        refFlagsMap.get().clear();
+        refFlagsMap.set(new HashMap<>());
     }
 
     @VisibleForTesting
