@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,11 +32,10 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * It is safe to call run this class periodically and hence can be used by {@link RefreshableDataStoreProvider}s.
  *
- * @author umermansoor
- * @author jawad
  */
 final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
-    private  final Map<String, FeatureFlag> flagsMap;
+
+    private final AtomicReference<Map<String, FeatureFlag>> refFlagsMap;
     private AtomicReference<String> projectNameRef = new AtomicReference<>();
     private AtomicReference<String> environmentNameRef = new AtomicReference<>();
     private final UnlaunchRestWrapper restWrapper;
@@ -51,7 +51,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
         this.restWrapper = restWrapper;
         this.gate = gate;
         this.initialSyncSuccessful = initialSyncSuccessful;
-        this.flagsMap = new ConcurrentHashMap<>();
+        this.refFlagsMap = new AtomicReference<>(new HashMap<>());
     }
 
     @Override
@@ -63,7 +63,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
             Response response = restWrapper.get();
             if (response.getStatus() == 304) {
                 logger.debug("synced flags with the server. No update. In memory data store has {} flags",
-                        flagsMap.size());
+                        refFlagsMap.get().size());
             } else if (response.getStatus() == 200) {
                 obj = parser.parse(response.readEntity(String.class));
                 JSONObject resBodyJson = (JSONObject) obj;
@@ -75,14 +75,18 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
 
                 List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
 
-                unlaunchFlags.forEach(flag -> flagsMap.put(flag.getKey(), flag));
+                Map<String, FeatureFlag> newFlagsMap = new HashMap<>(unlaunchFlags.size());
+                unlaunchFlags.forEach(flag -> newFlagsMap.put(flag.getKey(), flag));
+
+                refFlagsMap.set(newFlagsMap); //  Update  the main flag store's reference
+
                 logger.debug("downloaded {} features from the server", unlaunchFlags.size());
 
                 if (!initialSyncSuccessful.get()) {
-                    logger.info("Initial sync was successful and the client is ready. Synced {} flags", flagsMap.size());
+                    logger.info("Initial sync was successful and the client is ready. Synced {} flags", refFlagsMap.get().size());
                     initialSyncSuccessful.set(true);
                 } else {
-                    logger.info("Synced latest data. There are {} flags in memory.", flagsMap.size());
+                    logger.info("Synced latest data. There are {} flags in memory.", refFlagsMap.get().size());
                 }
             } else if (response.getStatus() == 403) {
                 logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
@@ -105,17 +109,17 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
 
     @Override
     public FeatureFlag getFlag(String flagKey) {
-        return flagsMap.get(flagKey);
+        return refFlagsMap.get().get(flagKey);
     }
 
     @Override
     public List<FeatureFlag> getAllFlags() {
-        return new ArrayList<>(flagsMap.values());
+        return new ArrayList<>(refFlagsMap.get().values());
     }
 
     @Override
     public boolean isFlagExist(String flagKey) {
-        return flagsMap.containsKey(flagKey);
+        return refFlagsMap.get().containsKey(flagKey);
     }
 
     @Override
@@ -139,7 +143,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public void close() {
         projectNameRef.set(null);
         environmentNameRef.set(null);
-        flagsMap.clear();
+        refFlagsMap.set(new HashMap<>());
     }
 
     @VisibleForTesting
