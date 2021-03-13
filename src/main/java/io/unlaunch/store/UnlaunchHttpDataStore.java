@@ -1,6 +1,7 @@
 package io.unlaunch.store;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.unlaunch.UnlaunchGenericRestWrapper;
 import io.unlaunch.engine.FeatureFlag;
 import io.unlaunch.UnlaunchRestWrapper;
 import io.unlaunch.engine.JsonObjectConversionHelper;
@@ -39,69 +40,106 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     private AtomicReference<String> projectNameRef = new AtomicReference<>();
     private AtomicReference<String> environmentNameRef = new AtomicReference<>();
     private final UnlaunchRestWrapper restWrapper;
+    private final UnlaunchGenericRestWrapper s3BucketRestWrapper;
     private final CountDownLatch gate;
     private final JsonObjectConversionHelper flagService = new JsonObjectConversionHelper();
     private final JSONParser parser = new JSONParser();
     private final AtomicBoolean initialSyncSuccessful;
+    private final AtomicBoolean sync0Complete = new AtomicBoolean(false);
     private final AtomicInteger numHttpCalls = new AtomicInteger(0);
 
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchHttpDataStore.class);
 
-    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, CountDownLatch gate, AtomicBoolean initialSyncSuccessful) {
+    protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, UnlaunchGenericRestWrapper s3BucketRestWrapper,
+                                    CountDownLatch gate, AtomicBoolean initialSyncSuccessful) {
         this.restWrapper = restWrapper;
+        this.s3BucketRestWrapper = s3BucketRestWrapper;
         this.gate = gate;
         this.initialSyncSuccessful = initialSyncSuccessful;
         this.refFlagsMap = new AtomicReference<>(new HashMap<>());
     }
 
+    private void sync0() throws ParseException {
+        Response response = s3BucketRestWrapper.get();
+
+        // If the s3 object doesn't exist, attempt a regular sync
+        if (response.getStatus() != 200) {
+            regularServerSync();
+            return;
+        }
+
+        Object obj = parser.parse(response.readEntity(String.class));
+        JSONObject resBodyJson = (JSONObject) obj;
+
+        logger.debug("s3 json {}", resBodyJson );
+
+        initFeatureStore(resBodyJson);
+    }
+
+    private void regularServerSync() throws ParseException {
+        Object obj = null;
+        numHttpCalls.incrementAndGet();
+
+        Response response = restWrapper.get();
+        if (response.getStatus() == 304) {
+            logger.debug("synced flags with the server. No update. In memory data store has {} flags",
+                    refFlagsMap.get().size());
+        } else if (response.getStatus() == 200) {
+            obj = parser.parse(response.readEntity(String.class));
+            JSONObject resBodyJson = (JSONObject) obj;
+
+            JSONObject data = (JSONObject) resBodyJson.get("data");
+
+            initFeatureStore(data);
+
+        } else if (response.getStatus() == 403) {
+            logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
+                    "you should check to make sure you are using the correct SDK Key. All feature flag " +
+                    "evaluations will return control. {}",  UnlaunchConstants.getSdkKeyHelpMessage());
+        }
+        else {
+            logger.error("HTTP error downloading features: {} - {}", response.readEntity(String.class), response.getStatus());
+        }
+    }
+
+    private final void initFeatureStore(JSONObject data) {
+        projectNameRef.set((String)data.get("projectName"));
+        environmentNameRef.set((String)data.get("envName"));
+        JSONArray flags = (JSONArray) data.get("flags");
+
+        List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
+
+        Map<String, FeatureFlag> newFlagsMap = new HashMap<>(unlaunchFlags.size());
+        unlaunchFlags.forEach(flag -> newFlagsMap.put(flag.getKey(), flag));
+
+        refFlagsMap.set(newFlagsMap); //  Update  the main flag store's reference
+
+        if (!initialSyncSuccessful.get()) {
+            logger.info("Initial sync was successful and the client is ready. Synced {} flags", refFlagsMap.get().size());
+            initialSyncSuccessful.set(true);
+        } else {
+            logger.info("Synced latest data. There are {} flags in memory.", refFlagsMap.get().size());
+        }
+
+        logger.info("downloaded {} features from the server", unlaunchFlags.size());
+    }
     @Override
     public void run() {
-        numHttpCalls.incrementAndGet();
-        Object obj = null;
-
         try {
-            Response response = restWrapper.get();
-            if (response.getStatus() == 304) {
-                logger.debug("synced flags with the server. No update. In memory data store has {} flags",
-                        refFlagsMap.get().size());
-            } else if (response.getStatus() == 200) {
-                obj = parser.parse(response.readEntity(String.class));
-                JSONObject resBodyJson = (JSONObject) obj;
+            if (!sync0Complete.get()) {
 
-                JSONObject data = (JSONObject) resBodyJson.get("data");
-                projectNameRef.set((String)data.get("projectName"));
-                environmentNameRef.set((String)data.get("envName"));
-                JSONArray flags = (JSONArray) data.get("flags");
-
-                List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
-
-                Map<String, FeatureFlag> newFlagsMap = new HashMap<>(unlaunchFlags.size());
-                unlaunchFlags.forEach(flag -> newFlagsMap.put(flag.getKey(), flag));
-
-                refFlagsMap.set(newFlagsMap); //  Update  the main flag store's reference
-
-                logger.debug("downloaded {} features from the server", unlaunchFlags.size());
-
-                if (!initialSyncSuccessful.get()) {
-                    logger.info("Initial sync was successful and the client is ready. Synced {} flags", refFlagsMap.get().size());
-                    initialSyncSuccessful.set(true);
-                } else {
-                    logger.info("Synced latest data. There are {} flags in memory.", refFlagsMap.get().size());
-                }
-            } else if (response.getStatus() == 403) {
-                logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
-                        "you should check to make sure you are using the correct SDK Key. All feature flag " +
-                        "evaluations will return control. {}",  UnlaunchConstants.getSdkKeyHelpMessage());
+                sync0Complete.set(true); // we preemptively marked it as done
+                sync0();
+            } else {
+                regularServerSync();
             }
-            else {
-                logger.error("HTTP error downloading features: {} - {}", response.readEntity(String.class), response.getStatus());
-            }
+
         } catch ( UnlaunchHttpException ex) {
-            logger.warn("unable to fetch flags using REST API " + ex.getMessage());
+            logger.warn("unable to fetch flags " + ex.getMessage());
         } catch (ParseException pex) {
-            logger.warn("unable to parse flags response that the API returned: {}. Error {}", obj, pex.getMessage());
+            logger.warn("unable to parse flags response. Error {}", pex.getMessage());
         } catch (Exception e) {
-            logger.warn("an error occurred when fetching flags using the REST API " + e.getMessage());
+            logger.warn("an error occurred when fetching flags " + e.getMessage());
         } finally {
             gate.countDown(); // unblock the client. For now, anything unblocks.
         }

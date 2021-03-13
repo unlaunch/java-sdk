@@ -29,19 +29,19 @@ public final class UnlaunchRestWrapper {
     
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchRestWrapper.class);
 
-    UnlaunchRestWrapper(String sdkKey, String host, String apiPath,  long connectionTimeOutMs, long readTimeOutMs) {
+    UnlaunchRestWrapper(String sdkKey, String host, String apiPath,  long connectionTimeoutMs, long readTimeoutMs) {
         this.sdkKey = sdkKey;
         ClientConfig configuration = new ClientConfig();
-        configuration.property(ClientProperties.CONNECT_TIMEOUT, (int)connectionTimeOutMs);
-        configuration.property(ClientProperties.READ_TIMEOUT, (int)readTimeOutMs);
+        configuration.property(ClientProperties.CONNECT_TIMEOUT, (int)connectionTimeoutMs);
+        configuration.property(ClientProperties.READ_TIMEOUT, (int)readTimeoutMs);
         client = ClientBuilder.newClient(configuration);
 
         apiWebTarget = client.target(host).path(apiPath);
     }
 
     public static UnlaunchRestWrapper create(
-            String sdkKey, String host, String apiPath, long connectionTimeOutMs, long readTimeOutMs) {
-        return new UnlaunchRestWrapper(sdkKey, host, apiPath, connectionTimeOutMs, readTimeOutMs);
+            String sdkKey, String host, String apiPath, long connectionTimeoutMs, long readTimeoutMs) {
+        return new UnlaunchRestWrapper(sdkKey, host, apiPath, connectionTimeoutMs, readTimeoutMs);
     }
 
     /**

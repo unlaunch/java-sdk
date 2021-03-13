@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.9-SNAPSHOT</version>
     <name>Unlaunch Java SDK</name>
     <description>Java SDK to use Unlaunch feature flags</description>
     <url>www.unlaunch.io</url>
@@ -10,16 +10,6 @@
         <name>Unlaunch</name>
         <url>https://unlaunch.io</url>
     </organization>
-    <developers>
-        <developer>
-            <name>Umer Mansoor</name>
-            <email>unlaunch@gmail.com</email>
-        </developer>
-        <developer>
-            <name>Jawad Nazar</name>
-            <email>jawad@unlaunch.io</email>
-        </developer>
-    </developers>
 
     <licenses>
         <license>

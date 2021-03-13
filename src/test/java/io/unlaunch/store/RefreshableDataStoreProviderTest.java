@@ -1,5 +1,6 @@
 package io.unlaunch.store;
 
+import io.unlaunch.UnlaunchGenericRestWrapper;
 import io.unlaunch.exceptions.UnlaunchHttpException;
 import io.unlaunch.UnlaunchRestWrapper;
 
@@ -7,6 +8,7 @@ import io.unlaunch.utils.UnlaunchTestHelper;
 import org.awaitility.Awaitility;
 import org.awaitility.Durations;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -26,6 +28,8 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testThatOnlySingletonInstanceIsCreated() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
+        UnlaunchGenericRestWrapper ugrw = Mockito.mock(UnlaunchGenericRestWrapper.class);
+
         Response response = Mockito.mock(Response.class);
         when(response.getStatus()).thenReturn(200);
         when(response.readEntity(String.class)).thenReturn(UnlaunchTestHelper.flagsResponseFromServerWithOneFlag());
@@ -33,6 +37,7 @@ public class RefreshableDataStoreProviderTest {
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
+                ugrw,
                 downLatch,
                 atomicBoolean,
                 Long.MAX_VALUE
@@ -48,10 +53,13 @@ public class RefreshableDataStoreProviderTest {
     @Test
     public void testNoExceptionIsThrownWhenThereIsAProblem() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
+        UnlaunchGenericRestWrapper ugrw = Mockito.mock(UnlaunchGenericRestWrapper.class);
+
         when(unlaunchRestWrapper.get()).thenThrow(new UnlaunchHttpException());
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
+                ugrw,
                 downLatch,
                 atomicBoolean,
                 Long.MAX_VALUE
@@ -61,13 +69,18 @@ public class RefreshableDataStoreProviderTest {
         dataStoreProvider.getDataStore();
     }
 
+
     @Test
     public void testDataStoreIsTriedRepeatedlyWhenThereAreErrors() {
         UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
+        UnlaunchGenericRestWrapper ugrw = Mockito.mock(UnlaunchGenericRestWrapper.class);
+
+        when(ugrw.get()).thenThrow(new UnlaunchHttpException());
         when(unlaunchRestWrapper.get()).thenThrow(new UnlaunchHttpException());
 
         RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
                 unlaunchRestWrapper,
+                ugrw,
                 downLatch,
                 atomicBoolean,
                 1
@@ -75,7 +88,9 @@ public class RefreshableDataStoreProviderTest {
 
         UnlaunchHttpDataStore dataStore = (UnlaunchHttpDataStore) dataStoreProvider.getDataStore();
 
-        Awaitility.await().pollDelay(Durations.TWO_SECONDS).until(() -> true);
+        Awaitility.await().pollDelay(Durations.FIVE_SECONDS).until(() -> true);
+
+        System.out.println("fed "+ dataStore.getNumberOfHttpCalls());
 
         Assert.assertTrue(dataStore.getNumberOfHttpCalls() >= 2);
     }

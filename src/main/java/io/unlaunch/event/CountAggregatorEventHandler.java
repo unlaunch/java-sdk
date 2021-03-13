@@ -78,7 +78,7 @@ final class CountAggregatorEventHandler implements EventHandler, Closeable {
                     eventHandler.handle(e);
                     eventHandler.flush(); // Flush because we already waited to aggregate events
                 } catch (RuntimeException ex) {
-                    logger.error("An error occured sending event counts to the service {}", ex.getMessage());
+                    logger.error("An error occurred sending event counts to the service {}", ex.getMessage());
                 }
             });
         } else {

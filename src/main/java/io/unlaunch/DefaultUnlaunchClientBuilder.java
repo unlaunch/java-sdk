@@ -50,6 +50,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
+    private final String s3BucketHost = "https://ul-master-flags.s3-us-west-1.amazonaws.com/";
 
     // To reduce load on server from aggressive settings
     public static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
@@ -209,8 +210,13 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         final CountDownLatch initialSyncCompleteLatch = new CountDownLatch(1);
         final AtomicBoolean initialSyncSuccessful = new AtomicBoolean(false);
 
+        UnlaunchGenericRestWrapper s3BucketRestClient =
+                UnlaunchGenericRestWrapper.create(s3BucketHost, sdkKey, connectionTimeoutMs, readTimeoutMs);
+
+
         RefreshableDataStoreProvider refreshableDataStoreProvider = new RefreshableDataStoreProvider(
                 restWrapperForFlagApi,
+                s3BucketRestClient,
                 initialSyncCompleteLatch,
                 initialSyncSuccessful,
                 pollingIntervalInSeconds);
