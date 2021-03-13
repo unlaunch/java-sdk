@@ -1,5 +1,6 @@
 package io.unlaunch;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import io.unlaunch.event.EventHandler;
@@ -37,6 +38,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private TimeUnit eventsFlushIntervalTimeUnit = TimeUnit.SECONDS;
     private int eventsQueueSize = 500;
     private String host = "https://api.unlaunch.io";
+    private String s3BucketHost = "https://api-unlaunch-io-master-flags.s3-us-west-1.amazonaws.com";
     private long connectionTimeoutMs = 10_000;
     private long readTimeoutMs = 10_000;
     private  String yamlFeaturesFilePath;
@@ -50,7 +52,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     private final String flagApiPath = "/api/v1/flags";
     private final String eventApiPath = "/api/v1/events";
     private final String impressionApiPath = "/api/v1/impressions";
-    private final String s3BucketHost = "https://ul-master-flags.s3-us-west-1.amazonaws.com/";
+
 
     // To reduce load on server from aggressive settings
     public static int MIN_POLL_INTERVAL_IN_SECONDS = 15;
@@ -112,6 +114,8 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
     }
 
 
+
+
     @Override
     public UnlaunchClientBuilder metricsFlushInterval(long interval, TimeUnit unit) {
         this.metricsFlushInterval = interval;
@@ -153,6 +157,9 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
      * @throws IllegalArgumentException
      */
     public UnlaunchClient build() {
+
+        buildS3BucketAddress();
+
         if (sdkKey != null && !sdkKey.isEmpty()) {
             if (!sdkKey.startsWith("prod")) {
                 logger.info("SDK key doesn't appear to be for production environment. Using relaxed settings to " +
@@ -196,6 +203,17 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
         } else {
             Clients.put(sdkKey, client);
         }
+    }
+
+    private void buildS3BucketAddress() {
+        if (host == null || host.isEmpty()) {
+            throw new IllegalStateException("The host cannot be null or empty");
+        }
+
+        if (!host.equals("https://api.unlaunch.io")) {
+            s3BucketHost = "https://app-qa-unlaunch-io-master-flags.s3-us-west-1.amazonaws.com";
+        }
+
     }
 
     private UnlaunchClient createDefaultClient() {
@@ -321,6 +339,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
 
     // This method will throw exception is errors are encountered
     private void validateConfigurationParameters() {
+
         try {
             // if not offline, check for SDK key and host
             if (!isOffline) {
@@ -370,6 +389,7 @@ final class DefaultUnlaunchClientBuilder implements UnlaunchClientBuilder {
             throw new IllegalStateException(e);
         }
     }
+
 
     private String getConfigurationAsPrintableString() {
         return "isOffline=" + isOffline +

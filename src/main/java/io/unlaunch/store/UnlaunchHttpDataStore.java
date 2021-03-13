@@ -74,6 +74,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
         logger.debug("s3 json {}", resBodyJson );
 
         initFeatureStore(resBodyJson);
+        logger.info("First sync completed successfully");
     }
 
     private void regularServerSync() throws ParseException {
