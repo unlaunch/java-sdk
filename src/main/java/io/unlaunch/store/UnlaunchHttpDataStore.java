@@ -28,11 +28,10 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * This class is responsible for fetching feature flags using the HTTP API and maintain a {@link ConcurrentHashMap} of
  * feature flags that are downloaded from the server in memory.
- *
+ * <p>
  * This class is not mutable and hence it is thread-safe.
- *
+ * <p>
  * It is safe to call run this class periodically and hence can be used by {@link RefreshableDataStoreProvider}s.
- *
  */
 final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
 
@@ -59,22 +58,41 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
         this.refFlagsMap = new AtomicReference<>(new HashMap<>());
     }
 
-    private void sync0() throws ParseException {
-        Response response = s3BucketRestWrapper.get();
+    private boolean sync0()  {
 
-        // If the s3 object doesn't exist, attempt a regular sync
-        if (response.getStatus() != 200) {
-            regularServerSync();
-            return;
+        try {
+            Response response = s3BucketRestWrapper.get();
+
+            // If the s3 object doesn't exist, attempt a regular sync
+            if (response.getStatus() != 200) {
+                return false;
+            }
+
+            // If the s3 doesn't parse, attempt a regular sync
+            Object obj = parser.parse(response.readEntity(String.class));
+
+            JSONObject resBodyJson = (JSONObject) obj;
+
+            logger.debug("s3 json {}", resBodyJson);
+
+            int numFlags = initFeatureStore(resBodyJson);
+
+            if (numFlags > 1) {
+                logger.info("First sync completed successfully");
+                return true;
+            } else {
+                // This is a soft failure. It is possible that the JSON is valid and doesn't contain any flags.
+                // However, we err on the side of caution and declare failure so regular sync can be tried
+                return false;
+            }
+
+        } catch (ParseException pex) {
+            logger.error("error parsing object. Fetching from server");
+            return false;
+        } catch (Exception e) {
+            logger.error("unknown error during initial sync {}", e.toString());
+            return false;
         }
-
-        Object obj = parser.parse(response.readEntity(String.class));
-        JSONObject resBodyJson = (JSONObject) obj;
-
-        logger.debug("s3 json {}", resBodyJson );
-
-        initFeatureStore(resBodyJson);
-        logger.info("First sync completed successfully");
     }
 
     private void regularServerSync() throws ParseException {
@@ -96,16 +114,20 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
         } else if (response.getStatus() == 403) {
             logger.error("The SDK key you provided was rejected by the server. This error in not recoverable and " +
                     "you should check to make sure you are using the correct SDK Key. All feature flag " +
-                    "evaluations will return control. {}",  UnlaunchConstants.getSdkKeyHelpMessage());
-        }
-        else {
+                    "evaluations will return control. {}", UnlaunchConstants.getSdkKeyHelpMessage());
+        } else {
             logger.error("HTTP error downloading features: {} - {}", response.readEntity(String.class), response.getStatus());
         }
     }
 
-    private final void initFeatureStore(JSONObject data) {
-        projectNameRef.set((String)data.get("projectName"));
-        environmentNameRef.set((String)data.get("envName"));
+    /**
+     * Takes the JSON data returned from the CDN or Unlaunch Server and initializes in-memory feature flag store.
+     *
+     * @param data
+     */
+    private final int initFeatureStore(JSONObject data) {
+        projectNameRef.set((String) data.get("projectName"));
+        environmentNameRef.set((String) data.get("envName"));
         JSONArray flags = (JSONArray) data.get("flags");
 
         List<FeatureFlag> unlaunchFlags = flagService.toUnlaunchFlags(flags);
@@ -123,24 +145,27 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
         }
 
         logger.info("downloaded {} features from the server", unlaunchFlags.size());
+        return unlaunchFlags.size();
     }
+
     @Override
     public void run() {
         try {
             if (!sync0Complete.get()) {
-
                 sync0Complete.set(true); // we preemptively marked it as done
-                sync0();
+                if (!sync0()) {
+                    regularServerSync(); // Attempt regular sync is s3 didn't work
+                }
             } else {
                 regularServerSync();
             }
 
-        } catch ( UnlaunchHttpException ex) {
-            logger.warn("unable to fetch flags " + ex.getMessage());
+        } catch (UnlaunchHttpException ex) {
+            logger.warn("unable to fetch flags {}", ex.toString());
         } catch (ParseException pex) {
-            logger.warn("unable to parse flags response. Error {}", pex.getMessage());
+            logger.warn("unable to parse flags response. Error {}", pex.toString());
         } catch (Exception e) {
-            logger.warn("an error occurred when fetching flags " + e.getMessage());
+            logger.warn("an error occurred when fetching flags {}", e.toString());
         } finally {
             gate.countDown(); // unblock the client. For now, anything unblocks.
         }
@@ -165,7 +190,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     public final String getProjectName() {
         return projectNameRef.get();
     }
-    
+
     @Override
     public final String getEnvironmentName() {
         return environmentNameRef.get();

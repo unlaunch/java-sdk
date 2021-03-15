@@ -12,7 +12,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.*;
+import java.lang.annotation.Annotation;
+import java.net.URI;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -69,6 +75,30 @@ public class RefreshableDataStoreProviderTest {
         dataStoreProvider.getDataStore();
     }
 
+    @Test
+    public void testWhen_Sync0Fails_Then_RegularSyncIsCalledImmediately() {
+        UnlaunchRestWrapper unlaunchRestWrapper = Mockito.mock(UnlaunchRestWrapper.class);
+        UnlaunchGenericRestWrapper ugrw = Mockito.mock(UnlaunchGenericRestWrapper.class);
+
+        when(ugrw.get()).thenThrow(new UnlaunchHttpException());
+
+        RefreshableDataStoreProvider dataStoreProvider = new RefreshableDataStoreProvider(
+                unlaunchRestWrapper,
+                ugrw,
+                downLatch,
+                atomicBoolean,
+                Integer.MAX_VALUE // never re-sync
+        );
+
+        UnlaunchHttpDataStore dataStore = (UnlaunchHttpDataStore) dataStoreProvider.getDataStore();
+
+
+        Awaitility.await().pollDelay(Durations.ONE_SECOND).until(() -> true);
+
+        Mockito.verify(ugrw, Mockito.times(1)).get();
+        Mockito.verify(unlaunchRestWrapper, Mockito.times(1)).get();
+        Assert.assertTrue(dataStore.getNumberOfHttpCalls() == 1);
+    }
 
     @Test
     public void testDataStoreIsTriedRepeatedlyWhenThereAreErrors() {
@@ -89,8 +119,6 @@ public class RefreshableDataStoreProviderTest {
         UnlaunchHttpDataStore dataStore = (UnlaunchHttpDataStore) dataStoreProvider.getDataStore();
 
         Awaitility.await().pollDelay(Durations.FIVE_SECONDS).until(() -> true);
-
-        System.out.println("fed "+ dataStore.getNumberOfHttpCalls());
 
         Assert.assertTrue(dataStore.getNumberOfHttpCalls() >= 2);
     }
