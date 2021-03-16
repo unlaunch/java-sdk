@@ -1,6 +1,7 @@
 package io.unlaunch.store;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.unlaunch.UnlaunchGenericRestWrapper;
 import io.unlaunch.UnlaunchRestWrapper;
 import io.unlaunch.exceptions.UnlaunchRuntimeException;
 import org.slf4j.Logger;
@@ -19,6 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class RefreshableDataStoreProvider implements Closeable {
     private final UnlaunchRestWrapper restWrapper;
+    private final UnlaunchGenericRestWrapper s3BucketRestWrapper;
+
     private final long delay;
 
     private final AtomicReference<UnlaunchHttpDataStore> refreshableUnlaunchFetcherRef = new AtomicReference<>();
@@ -30,6 +33,7 @@ public final class RefreshableDataStoreProvider implements Closeable {
 
     public RefreshableDataStoreProvider(
             UnlaunchRestWrapper restWrapper,
+            UnlaunchGenericRestWrapper s3BucketRestWrapper,
             CountDownLatch initialDownloadDoneLatch,
             AtomicBoolean downloadSuccessful,
             long dataStoreRefreshDelayInSeconds) {
@@ -37,6 +41,7 @@ public final class RefreshableDataStoreProvider implements Closeable {
         this.delay = dataStoreRefreshDelayInSeconds;
         this.initialDownloadDoneLatch = initialDownloadDoneLatch;
         this.downloadSuccessful = downloadSuccessful;
+        this.s3BucketRestWrapper = s3BucketRestWrapper;
 
         ThreadFactoryBuilder threadFactoryBuilder = new ThreadFactoryBuilder();
         threadFactoryBuilder.setDaemon(true);
@@ -54,7 +59,9 @@ public final class RefreshableDataStoreProvider implements Closeable {
             return refreshableUnlaunchFetcherRef.get();
         }
 
-        UnlaunchHttpDataStore dataStore = new UnlaunchHttpDataStore(restWrapper, initialDownloadDoneLatch, downloadSuccessful);
+        UnlaunchHttpDataStore dataStore = new UnlaunchHttpDataStore(restWrapper, s3BucketRestWrapper,
+                initialDownloadDoneLatch,
+                downloadSuccessful);
 
         try {
             scheduledExecutorService.scheduleWithFixedDelay(dataStore, 0L, delay, TimeUnit.SECONDS);

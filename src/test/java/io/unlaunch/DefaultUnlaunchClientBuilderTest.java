@@ -13,10 +13,10 @@ public class DefaultUnlaunchClientBuilderTest {
 
     @Test(expected = IllegalStateException.class)
     public void testInvalidPollingInterval() {
-        UnlaunchClient.builder().
-                sdkKey("sdkKey").
-                pollingInterval(-1, TimeUnit.SECONDS).
-                build();
+        UnlaunchClient.builder()
+                .sdkKey("sdkKey")
+                .pollingInterval(-1, TimeUnit.SECONDS)
+                .build();
     }
 
     @Test(expected = IllegalStateException.class)
