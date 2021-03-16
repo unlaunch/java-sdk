@@ -77,7 +77,7 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
 
             int numFlags = initFeatureStore(resBodyJson);
 
-            if (numFlags > 1) {
+            if (numFlags > 0) {
                 logger.info("First sync completed successfully");
                 return true;
             } else {
