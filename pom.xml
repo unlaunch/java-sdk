@@ -10,6 +10,16 @@
         <name>Unlaunch</name>
         <url>https://unlaunch.io</url>
     </organization>
+    <developers>
+        <developer>
+            <name>Umer Mansoor</name>
+            <email>unlaunch@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Jawad Nazar</name>
+            <email>jawad@unlaunch.io</email>
+        </developer>
+    </developers>
 
     <licenses>
         <license>
