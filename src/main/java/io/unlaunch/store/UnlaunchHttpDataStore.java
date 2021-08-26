@@ -46,7 +46,6 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     private final AtomicBoolean initialSyncSuccessful;
     private final AtomicBoolean sync0Complete = new AtomicBoolean(false);
     private final AtomicInteger numHttpCalls = new AtomicInteger(0);
-
     private static final Logger logger = LoggerFactory.getLogger(UnlaunchHttpDataStore.class);
 
     protected UnlaunchHttpDataStore(UnlaunchRestWrapper restWrapper, UnlaunchGenericRestWrapper s3BucketRestWrapper,
@@ -213,5 +212,16 @@ final class UnlaunchHttpDataStore implements UnlaunchDataStore, Runnable {
     @VisibleForTesting
     int getNumberOfHttpCalls() {
         return numHttpCalls.get();
+    }
+
+    @Override
+    public String toString() {
+        return "UnlaunchHttpDataStore{" +
+                "flags=" + refFlagsMap.get().keySet() +
+                ", projectName=" + projectNameRef +
+                ", environmentName=" + environmentNameRef +
+                ", initialSyncSuccessful=" + initialSyncSuccessful +
+                ", sync0Complete=" + sync0Complete +
+                '}';
     }
 }

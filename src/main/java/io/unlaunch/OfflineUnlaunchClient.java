@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- *  Offline Unlaunch client which doesn't connect to the Unlauch server over network to download feature flags, nor
+ *  Offline Unlaunch client which doesn't connect to the Unlaunch server over network to download feature flags, nor
  *  does it sends any events or metrics data. By default, it will return default variation for all feature flags. Users
  *  can specify a YAML file containing feature flags and default variations and it will return those when the feature is
  *  evaluated.
