@@ -32,7 +32,7 @@ First, add the maven dependency to your project. Use the latest version from [he
  <dependency>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.8</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 Here's how you'd use the Java SDK in your application.
@@ -53,7 +53,7 @@ public class ExampleApp {
          System.out.println("client wasn't ready " + e.getMessage());
        }
        // get variation
-       String variation = client.getVariation("flagKey", "userId123");
+       String variation = client.getVariation("FLAG_KEY", "userId123");
       
        // take action based on the returned variation
        if (variation.equals("on")) {
@@ -66,7 +66,7 @@ public class ExampleApp {
 
       // If you attached (key-value) configuration to your feature flag variations, 
       // here's how you can retrieve it:
-       UnlaunchFeature feature = client.getFeature("new_login_ui", userId);
+       UnlaunchFeature feature = client.getFeature("FLAG_KEY", userId);
        String colorHexCode = feature.getVariationConfig().getString("login_btn_clr", "#cd5c5c");
 
        // shutdown the client to flush any events or metrics 
@@ -116,11 +116,11 @@ UnlaunchClient client = UnlaunchClient.builder()
 
 ### Offline Mode
 
-You can start the SDK in offline mode for testing purposes. In offline mode, flags aren't downloaded from the server
- and no data is sent. All calls to `getVariation` or its variants will return `control`. Read more in the [official
-  guide](https://docs.unlaunch.io/docs/sdks/java-sdk#offline-mode).
+You can start the SDK in 'offline mode' for testing purposes. In the offline mode, flags aren't downloaded from the
+ server and no data is transferred. All calls to `getVariation` or its variants will return `control`. Read more in
+  the [official guide](https://docs.unlaunch.io/docs/sdks/java-sdk#offline-mode).
  
- To start the client in offline mode for testing purposes, call the `offlineMode` method:
+ To start the client in the offline mode for testing purposes, call the `offlineMode` method:
   
   ```$xslt
 UnlaunchClient client = UnlaunchClient.builder().offlineMode().build();
