@@ -208,6 +208,14 @@ final class DefaultUnlaunchClient implements UnlaunchClient {
         return new CloneNotSupportedException();
     }
 
+    @Override
+    public String toString() {
+        return "DefaultUnlaunchClient{" +
+                "dataStore=" + dataStore +
+                ", shutdownInitiated=" + shutdownInitiated +
+                ", downloadSuccessful=" + downloadSuccessful +
+                '}';
+    }
 }
 
 

@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.unlaunch.sdk</groupId>
     <artifactId>unlaunch-java-sdk</artifactId>
-    <version>0.0.9-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>Unlaunch Java SDK</name>
     <description>Java SDK to use Unlaunch feature flags</description>
     <url>www.unlaunch.io</url>
@@ -13,11 +13,10 @@
     <developers>
         <developer>
             <name>Umer Mansoor</name>
-            <email>unlaunch@gmail.com</email>
+            <email>umer@unlaunch.io</email>
         </developer>
         <developer>
             <name>Tuan Nguyen</name>
-            <email>tnguyenquy@gmail.com</email>
         </developer>
     </developers>
 
@@ -105,7 +104,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.10</version>
+            <version>[1.26,)</version>
         </dependency>
 
         <dependency>
